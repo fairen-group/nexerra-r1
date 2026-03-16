@@ -1,5 +1,6 @@
 > 🚧 **Under Construction:**  
 > This is an initial release of the functionality. Further documentation and cleanup are still in progress. Currently only model training and inference is supported. Everything currently documented in this README should be runnable. If you encounter challenges, reach out to dm958[at]cam[dot]ac[dot]uk.
+> This repository will be under continuous development; a stable version will be released upon final publication.
 
 # Nexerra-R1
 ![Demo](assets/header.gif)
