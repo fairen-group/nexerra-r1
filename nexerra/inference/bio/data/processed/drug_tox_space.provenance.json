@@ -1,0 +1,8 @@
+{
+  "created_utc": "2026-03-09T05:40:22.151518+00:00",
+  "sources": {
+    "C:\\Users\\ivan\\Projects\\PhD.NexterraReward\\data\\raw\\Acute Toxicity_mouse_intravenous_LD50_with_units.csv": "d94ad3e9d9a9a8e0d3a48d8082df43395ce11e3589fff06d1548289aa4d204b4",
+    "C:\\Users\\ivan\\Projects\\PhD.NexterraReward\\data\\raw\\Acute Toxicity_mouse_intraperitoneal_LD50_with_units.csv": "2ba2171d202345a4af07467385f20d648b582f093e99409c82d1d7d08cabb0b5"
+  },
+  "code_version": "5e095dd88e1beafb85dc1960460eb9f1bd78ea8e"
+}

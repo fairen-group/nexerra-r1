@@ -1,0 +1,10 @@
+﻿smiles
+CC(c1cc(O)cc(O)c1)(C(Sc1cc(O)cc(O)c1)c1cc(O)cc(O)c1)C([Lr])C(C#C[Lr])(c1cc(O)cc(O)c1)c1cc(O)cc(O)c1
+Oc1ccc(-c2cc(/C=C/c3c(-c4ccc(O)cc4)cc([Lr])c(-c4ccc(O)cc4)c3-c3ccc(O)cc3)c(-c3ccc(O)cc3)cc2[Lr])cc1
+O=S(=O)(O)Cc1nn([Lr])c(CS(=O)(=O)O)c1-c1c(CS(=O)(=O)O)nn([Lr])c1C(S(=O)(=O)O)(S(=O)(=O)O)S(=O)(=O)O
+[Lr]c1ccc(-c2c(-c3ccccc3)cc([Lr])c(-c3ccccc3)c2Cn2c(-c3ccccc3)nc(-c3ccccc3)c2-c2ccccc2)cc1-c1ccccc1
+[Lr]c1ccc(N2C=C(c3ccncc3)N(c3c(-c4ccncc4)cc([Lr])c(-c4ccncc4)c3-c3ccncc3)C(c3ccncc3)N2)cc1-c1ccncc1
+CP(C)c1cc([Lr])c(P(C)C)c(N2C(P(C)C)C(P(C)C)C(P(C)C)N(c3cc(P(C)C)c([Lr])cc3P(C)C)C(P(C)C)C2P(C)C)c1
+O=C(O)CSC1=C([Lr])C(SCC(=O)O)=C2C(SC(C(=O)O)C(=O)O)=C([Lr])C(SC(C(=O)O)C(=O)O)=C1C(C(=O)O)C2C(=O)O
+[Lr]c1cc(-n2ccnc2)c(C#Cc2ccc(C#Cc3cc(-n4ccnc4)c([Lr])c(-n4ccnc4)c3-n3ccnc3)cc2-n2ccnc2)cc1-n1ccnc1
+[Lr]c1ccc(N2CN(c3c(-c4cncnc4)cc([Lr])c(-c4cncnc4)c3-c3cncnc3)C=C2c2cncnc2)c(-c2cncnc2)c1-c1cncnc1

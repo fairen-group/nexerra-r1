@@ -1,0 +1,46 @@
+﻿Metal,Toxicity,Reference,Confidence
+Li ,"526 mg/kg [rat, oral] for Lithium Chloride",Material Safety Datasheet - Fisher Scientific,"** (multiple sources, slight inconsistency)"
+Be,"86 mg/kg [rat, oral] for Beryllium Chloride",Material Safety Datasheet - Santa Cruz Biotechnology,"** (multiple sources, slight inconsistency)"
+Na,"1180 mg/kg [rat, oral] for Sodium Chloride"," Guidelines for drinking-water quality, 2nd ed. Vol. 2. Health criteria and other supporting information. World Health Organization, Geneva, 1996.","*** (multiple sources, consistent)"
+Mg,">5000 mg/kg [rat, oral] for Magnesium Chloride",Material Safety Datasheet - NexChem,"* (few sources, large inconsistency)"
+Al,"3470 mg/kg [rat, oral] for Aluminum Chloride",Material Safety Datasheet - Fisher Scientific,* (large inconsistency)
+K,"2600 mg/kg [rat, oral] for Potassium Chloride",Material Safety Datasheet - Fisher Scientific,* (large inconsistency)
+Ca,"2301 mg/kg [rat, oral] for Calcium Chloride",European Chemicals Agency (ECHA),* (single source)
+Sc,"755 - 4000 mg/kg [rat, intraperitoneal and rat, oral] for Scandium Chloride","Haley, T.J., Komesu, N., Mavis, L., Cawthorne, J. and Upham, H.C., 1962. Pharmacology and toxicology of scandium chloride. Journal of Pharmaceutical Sciences, 51(11), pp.1043-1045.","* (single source, old)"
+Ti,"484 - 1780 mg/kg [rat, oral] for Titanium Chloride",Material Safety Datasheet - Gelest,"** (multiple sources, slight inconsistency)"
+V,"350 mg/kg [rat, oral] for Vanadium (III) Chloride; 160 mg/kg [rat, oral] for Vanadium(IV) Chloride",Material Safety Datasheet - Fisher Scientific,"*** (multiple sources, consistent)"
+Cr,"440 - 1790 mg/kg [rat, oral] for Chromium (III) Chloride;  13-28 mg/kg [rat, oral] for Chromium (VI) Chloride","International Programme on Chemical Safety (IPCS), Inorganic chromium (VI) compounds. Draft. Concise International Chemical Assessment Document 2006, WHO: Geneva; Material Safety Datasheet - Sigma Aldrich","Cr(III): ** (multiple sources, slight inconsistency) and Cr(VI): *** (multiple sources, consistent)"
+Mn,"250 mg/kg [rat, oral] for Manganese (II) Chloride;  1454 mg/kg [rat, oral] for Manganese (IV) Chloride",Material Safety Datasheet - Sigma Aldrich; Material Safety Datasheet - Finar Chemicals,"Mn(II): ** (multiple sources, slight inconsistency)  and Mn(IV): * (few sources, inconsistency) "
+Fe,"450 - 500 mg/kg [rat, oral] for Iron (III) Chloride; 450 mg/kg [rat, oral] Iron (II) Chloride",Material Safety Datasheet - Fisher Scientific; Material Safety Datasheet - Fisher Scientific,"Fe(III): ** (multiple sources, slight inconsistency) and Fe(II): *** (multiple sources, consistent)"
+Co,"537 mg/kg [rat, oral] for Cobalt (II) Chloride",Material Safety Datasheet - Fisher Scientific,"Co(II): ** (multiple sources, slight inconsistency) and * for rest"
+Ni,"105 mg/kg [rat, oral] for Nickel (II) Chloride",Material Safety Datasheet - Finar Chemicals,"Ni(II): *** (multiple sources, consistent) and * for rest"
+Cu,"584 mg/kg [rat, oral] for Copper (II) Chloride and 336 mg/kg [rat, oral] for Copper (I) Chloride",Material Safety Datasheet - Sigma Aldrich; Material Safety Datasheet - Fisher Scientific,"** (multiple sources, slight inconsistency)"
+Zn,"350 mg/kg -1100 mg/kg [rat, oral] for Zinc Chloride",Material Safety Datasheet - Sigma Aldrich,"** (multiple sources, slight inconsistency)"
+Ga,"4700 mg/kg [rat, oral] for Gallium (III) Chloride",PubChem,"* (single source, old )"
+Ge,N/A,N/A,N/A
+Rb,"4400 mg/kg [rat, oral] for Rubidium Chloride",Material Safety Datasheet - CarlRoth,"*** (multiple sources, consistent)"
+Sr,"2250 mg/kg [rat, oral] for Strontium Chloride",Material Safety Datasheet - Fisher Scientific,"*** (multiple sources, consistent)"
+Y,"> 2000 mg/kg [rat, oral] for Yttrium Chloride",Material Safety Datasheet - Sigma Aldrich,"* (few sources, large inconsistency)"
+Zr,"1688 - 3500 mg/kg [rat, oral] for Zirconium (IV) Chloride",Material Safety Datasheet - Fisher Scientific,"** (multiple sources, slight inconsistency)"
+Nb,"1400 mg/kg [rat, oral] for Niobium (V) Chloride",Material Safety Datasheet - Fisher Scientific,"** (multiple sources, slight inconsistency)"
+Mo,"~125 mg/kg [rat, oral] for Molybednum compounds",Molybdenum and its compounds [MAK Value Documentation],"* (single source, not well reported)"
+Ru,"595 mg/kg [rat, oral] for Ruthenium Chloride",Material Safety Datasheet - Fisher Scientific,"* (few sources, large inconsistency)"
+Rh,"753-1302 mg/kg [rat, oral] for Rhodium Chloride",Material Safety Datasheet - Fisher Scientific,"** (multiple sources, slight inconsistency)"
+Pd,"576 - 2704 mg/kg [rat, oral] for Palladium (II) Chloride",Material Safety Datasheet - Fisher Scientific,"* (few sources, large inconsistency)"
+Ag,"> 5000 mg/kg [rat, oral] for Silver Chloride",Material Safety Datasheet - Sigma Aldrich,"*** (multiple sources, consistent)"
+Cd,"88 - 107 mg/kg [rat, oral] for Cadmium Chloride",Material Safety Datasheet - Sigma Aldrich,"** (multiple sources, slight inconsistency)"
+In,"1100 - > 2000 mg/kg [rat, oral] for Indium (III) Chloride",Material Safety Datasheet - Fisher Scientific,"** (multiple sources, slight inconsistency)"
+Sn,"1200 - 1910 mg/kg [rat, oral] for Tin (II) Chloride and N/A for Tin (IV) Chloride",Material Safety Datasheet - Sigma Aldrich,"** (multiple sources, slight inconsistency)"
+Sb,"525 mg/kg [rat, oral] for Antimony (III) Chloride and 1115 mg/kg [rat, oral] for Antimony (V) Chloride",Material Safety Datasheet - Sigma Aldrich; Material Safety Datasheet- Santa Cruz Biotechnology,"*** (multiple sources, consistent)"
+Cs,"2600 mg/kg [rat, oral] for Cesium Chloride",Material Safety Datasheet - Fisher Scientific,"** (multiple sources, slight inconsistency)"
+Ba,"118 - 397 mg/kg [rat, oral] for Barium Chloride",Material Safety Datasheet - Fisher Scientific,"** (multiple sources, slight inconsistency)"
+Hf,"2362 mg/kg [rat, oral] for Hafnium (IV) Chloride",Material Safety Datasheet - Santa Cruz Biotechnology,* (inconsistent - wide variations)
+W,N/A,N/A,"extremely inconsistent, few sources"
+Re,N/A,N/A,N/A
+Ir,"1560 mg/kg [rat, oral] for Iridium (IV) Chloride",Material Safety Datasheet - Sigma Aldrich,"** (multiple sources, slight inconsistency)"
+Pt,"3423 mg/kg [rat, oral] for Platinum (II) Chloride and 276 mg/kg [rat, oral] for Platinum (IV) Chloride",Material Safety Datasheet - Scientific Fisher; Material Safety Datasheet - Scientific Fisher,"** (multiple sources, slight inconsistency)"
+Au,"464 mg/kg [rat, oral] for Gold (III) Chloride Hydrate, N/A for Gold (I) Chloride",Material Safety Datasheet - Sigma Aldrich,"* (few sources, large inconsistency)"
+Hg,"1 mg/kg [rat, oral] for Mercury (II) Chloride",Material Safety Datasheet - Scientific Fisher ,"** (multiple sources, slight inconsistency)"
+Tl,N/A,N/A,N/A
+Pb,"1947 mg/kg [rat, oral] for Lead (II) Chloride",Material Safety Datasheet - Scientific Fisher,"*** (multiple sources, consistent)"
+Bi,"3334 mg/kg [rat, oral] for Bismuth (III) Chloride",Material Safety Datasheet - Scientific Fisher,"** (multiple sources, slight inconsistency)"

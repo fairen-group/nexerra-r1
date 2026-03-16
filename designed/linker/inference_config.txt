@@ -1,0 +1,11 @@
+# Inference Configuration
+latent_dim=128
+max_len=102
+temperature=0.8
+top_p_val=0.8
+n_samples=1000
+guidance_scale=1.5
+uncond_value=0.0
+solver=rk45
+rtol=0.0001
+atol=1e-06

@@ -1,0 +1,28 @@
+{
+  "created_utc": "2026-03-12T15:46:39.185018+00:00",
+  "stats_source": "fixed_constants",
+  "mof_stats": {
+    "agsa": [
+      0.0,
+      9463.0
+    ],
+    "pld": [
+      0.0,
+      101.0
+    ],
+    "lcd": [
+      0.3,
+      117.0
+    ]
+  },
+  "linker_stats": {
+    "heavy_atom_count": [
+      1.0,
+      50.0
+    ],
+    "anchor_distance": [
+      1.45,
+      33.35
+    ]
+  }
+}

@@ -1,0 +1,2 @@
+[Lr]c1cc([Lr])cc([Lr])c1
+[Lr]c1ccc([Lr])cc1

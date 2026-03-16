@@ -1,0 +1,36 @@
+.DS_Store
+
+# Local environments
+.conda/
+.venv/
+venv/
+.vscode/
+
+# Python cache/build output
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Runtime logs
+*.log
+artifacts/logs/
+nexerra/inference/bio/logs/
+
+# Generated run outputs
+designed/linker/run/output.txt
+designed/linker/run/output_all.txt
+designed/linker/run/generated_linkers.txt
+designed/linker/run/generated_linkers_all.txt
+designed/linker/run/output_linkers.txt
+
+# Large runtime assets downloaded or generated locally
+artifacts/ckpt/
+artifacts/latent_banks/
+data/processed/cached_inputs.pt
+data/processed/tokenized_dataset.pkl
+
+# Generated or non-essential vendored artifacts
+nexerra/inference/bio/data/interim/
+nexerra/utils/scscore/models/example_model/
+nexerra/utils/scscore/models/full_reaxys_model_1024bool/
+nexerra/utils/scscore/models/full_reaxys_model_1024uint8/

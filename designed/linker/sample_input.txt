@@ -1,0 +1,57 @@
+# ----- Here, we give example inputs ---
+1. For 'direct design' mode:
+   The model expects a single SMILES with the coordinating moieties denoted [Lr].
+   An example is as follows (don't include inverted commas, just the raw string):
+
+'''
+[Lr]c1cc([Lr])cc([Lr])c1
+'''
+
+The corresponding output will be a .txt file with a list of SMILES that pass all criteria:
+
+'''
+c1cc([Lr])cc2ncc([Lr])cc12
+NC(=C(Cl)[Lr])c1ccc([Lr])cc1N
+ClC([Lr])SC1=CC2=CC=C(SC[Lr])C2=C1
+Nc1ccc2c(N)c([Lr])ccc2c1C(Cl)[Lr]
+Nc1c([Lr])ccc2c(N)c([Lr])ccc12
+NCc1cc([Lr])ccc1C=CC([Lr])NCl
+Nc1cc([Lr])ccc1-c1ccc([Lr])c(N)c1N
+NCc1cc([Lr])ccc1C#C[Lr]
+ClCSc1cc([Lr])ccc1C=CSC[Lr]
+Nc1c([Lr])cc2c(N)cc([Lr])cc2c1N
+NC(=CC(F)[Lr])c1ccc([Lr])cc1N
+S=Cc1cc([Lr])ccc1C#C[Lr]
+Nc1cc([Lr])ccc1-c1ccc([Lr])cc1S
+Cc1cc([Lr])ccc1C=CCC([Lr])C#N
+NC1=c2cc([Lr])cc(S)c2=C([Lr])C1(N)N
+Nc1cc([Lr])ccc1C(Cl)=C(Cl)[Lr]
+Nc1cc2c(N)c([Lr])ccc2c(N)c1[Lr]
+Nc1cc([Lr])ccc1C=CC(N)(N)[Lr]
+Nc1c([Lr])ccc2c(NCl)c([Lr])ccc12
+NCc1cc([Lr])ccc1C=CC(N)[Lr]
+C#Cc1cc([Lr])ccc1SC[Lr]
+Nc1cc([Lr])cc2c(Cl)c(Cl)c([Lr])cc12
+Nc1cc([Lr])ccc1-c1c(N)cc([Lr])cc1N
+Nc1cc([Lr])ccc1C(Cl)=CC(N)[Lr]
+Nc1cc([Lr])ccc1C#C[Lr]
+Nc1cc([Lr])cc(S)c1C=CC(N)[Lr]
+'''
+
+2. For 'scaffold-constrained design' mode:
+   The model expects a two SMILES with the coordinating moieties denoted [Lr].
+   The first line must be the core/scaffold
+   The second line must be a 2-connected arm
+   An example is as follows (don't include inverted commas, just the raw string):
+
+'''
+[Lr]c1cc([Lr])cc([Lr])c1
+[Lr]c1ccc([Lr])cc1
+'''
+
+The corresponding output will be a .csv file with three columns [CORE] [ARM] [LINKER]
+
+'''
+scaffold, arm, linker
+[Lr]c1cc([Lr])cc([Lr])c1. [Lr]c1ccc([Lr])cc1, [Lr]c1ccc(-c2cc(-c3ccc([Lr])cc3)cc(-c3ccc([Lr])cc3)c2)cc1
+'''

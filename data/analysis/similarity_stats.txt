@@ -1,0 +1,8 @@
+# Similarity statistics
+n_samples	200000
+mean	0.073097
+median	0.067797
+p5	0.019608
+p25	0.045455
+p75	0.093750
+p95	0.142857
