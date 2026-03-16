@@ -1,12 +1,12 @@
 > 🚧 **Under Construction:**  
 > This is an initial release of the functionality. Further documentation and cleanup are still in progress. Currently only model training and inference is supported. Everything currently documented in this README should be runnable. If you encounter challenges, reach out to dm958[at]cam[dot]ac[dot]uk.
 
-# NexerraR1
+# Nexerra-R1
 ![Demo](assets/header.gif)
 Open-source code for NexerraR1 as described in the following pre-print.
 
 ```bib
-@article{ahern2025atom,
+@article{menon2026a,
   title={A chemical language model for reticular materials design},
   author={Menon, Dhruv and Singh, Vivek and Chen, Xu and Alizadeh Kiapi, Mohammad Reza and Zyuzin, Ivan and MacLeod, Hamish W and Rampal, Nakul and Shepard, William and Yaghi, Omar and Fairen-Jimenez, David},
   journal={arRxiv preprint},
