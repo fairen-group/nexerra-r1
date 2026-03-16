@@ -3,6 +3,7 @@
 
 # Nexerra-R1
 ![Demo](assets/header.gif)
+
 Open-source code for NexerraR1 as described in the following pre-print.
 
 ```bib
