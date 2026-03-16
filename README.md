@@ -16,9 +16,9 @@ Open-source code for NexerraR1 as described in the following pre-print.
 ```
 
 This repository currently focuses on model training and inference for:
-- direct linker design
-- scaffold-constrained linker design
-- flow-guided seeded generation
+- direct linker design using the 'Direct Design' mode
+- scaffold-constrained linker design using the 'Scaffold-constrained Design' mode
+- flow-guided linker design using the 'Flow Design' mode
 
 ## Set-up
 <a id="set-up"></a>
@@ -38,9 +38,6 @@ This repo is intended to be used through a curated Conda environment.
 
    The provided `environment.yml` is a curated environment for the main Nexerra workflow.
 
-   Note:
-   This should be more portable than a full machine-specific environment export, but some optional workflows still rely on system-sensitive tooling.
-
 3. **Add the repo to your `PYTHONPATH`**
 
    If you installed the repo into `/my/path/to/nexerra-R1`, run:
@@ -50,7 +47,6 @@ This repo is intended to be used through a curated Conda environment.
    ```
 
 4. **Keep the required repo artifacts in place**
-
    The current inference code expects these assets to exist:
 
    ```text
@@ -65,7 +61,7 @@ This repo is intended to be used through a curated Conda environment.
 
 5. **Download external runtime assets**
 
-   Large runtime assets are intentionally not stored in Git. After cloning, fetch them from your Zenodo deposit into the expected locations:
+   Large runtime assets are intentionally not stored in Git. After cloning, fetch them from the Zenodo deposit into the expected locations (if this is not up already, it will be soon; any relevant instructions may be updated):
 
    ```bash
    python setup_assets.py --base-url "https://zenodo.org/records/<record-id>/files"
@@ -79,10 +75,7 @@ This repo is intended to be used through a curated Conda environment.
    - `data/processed/tokenized_dataset.pkl`
 
    Notes:
-   - By default, the remote filename is assumed to match the local filename.
-   - If the Zenodo deposit uses different filenames or explicit per-file URLs, provide a JSON manifest with `dest` plus either `remote_name` or `url`.
    - `setup.py` is available as a thin wrapper around `setup_assets.py`, so `python setup.py --base-url ...` works too.
-
 
 ## Inference
 <a id="inference"></a>
