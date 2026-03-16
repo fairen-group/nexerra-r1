@@ -77,6 +77,121 @@ This repo is intended to be used through a curated Conda environment.
    Notes:
    - `setup.py` is available as a thin wrapper around `setup_assets.py`, so `python setup.py --base-url ...` works too.
 
+## Model Training
+<a id="model-training"></a>
+
+The training workflow has two stages:
+- train the VAE linker model
+- build a latent bank and train the OT-CFM flow model on top of the pretrained VAE
+
+### 1. Prepare tokenized training data
+
+From `nexerra/utils/`, preprocess the raw training CSV into the tokenized dataset bundle used by both the VAE and flow stages:
+
+```bash
+python preprocess.py --mode gen --src ../../data/raw/training_dataset.csv --dst ../../data/processed
+```
+
+This produces artifacts such as:
+- `data/processed/tokenized_dataset.pkl`
+- `data/processed/train_smiles.txt`
+- `data/processed/val_smiles.txt`
+- `data/processed/test_smiles.txt`
+- `data/processed/tok2id.json`
+- `data/processed/id2tok.json`
+
+### 2. Train the VAE model
+
+The VAE training entrypoint is:
+
+```text
+nexerra/model/Trainer.py
+```
+
+Run it from `nexerra/model/` with the tokenized dataset and the raw training CSV:
+
+```bash
+python Trainer.py \
+  --data ../../data/processed/tokenized_dataset.pkl \
+  --rs ../../data/raw/training_dataset.csv \
+  --batch 128
+```
+
+The production-oriented defaults in the training script use a `latent_dim` of `128` and `120` epochs. Checkpoints are written per epoch as:
+
+```text
+artifacts/ckpt/vae/vae_epoch_<n>.pt
+```
+
+To resume training from an existing checkpoint:
+
+```bash
+python Trainer.py \
+  --data ../../data/processed/tokenized_dataset.pkl \
+  --rs ../../data/raw/training_dataset.csv \
+  --batch 128 \
+  --resume ../../artifacts/ckpt/vae/vae_epoch_<n>.pt \
+  --epoch <n>
+```
+
+### 3. Build the latent bank
+
+The flow model is trained on latent encodings produced by the pretrained VAE. Build the latent bank from the training SMILES list using:
+
+```text
+nexerra/cfm/build_bank.py
+```
+
+Run it from `nexerra/cfm/`:
+
+```bash
+python build_bank.py \
+  --mode build \
+  --data ../../data/processed/train_smiles.txt \
+  --batch_size 128 \
+  --savepath ../../artifacts/latent_banks/latent_bank.pt
+```
+
+This script loads the VAE checkpoint from `artifacts/ckpt/vae/no_prop_vae_epoch_120.pt` by default and writes the latent bank to the path you provide.
+
+### 4. Train the OT-CFM flow model
+
+The flow training entrypoint is:
+
+```text
+nexerra/cfm/otcfm_trainer.py
+```
+
+Run it from `nexerra/cfm/` using the latent bank built in the previous step:
+
+```bash
+python otcfm_trainer.py \
+  --latent_pt ../../artifacts/latent_banks/latent_bank.pt \
+  --percentile_start 70 \
+  --percentile_end 100 \
+  --steps 50000 \
+  --batch 4096 \
+  --out_path ../../artifacts/ckpt/flow/otcfm_step_50000.pt
+```
+
+Important defaults from the training script:
+- the flow trainer reloads the pretrained VAE from `artifacts/ckpt/vae/no_prop_vae_epoch_120.pt`
+- the tokenizer bundle is loaded from `data/processed/tokenized_dataset.pkl`
+- `--matcher otcfm` is the active matcher choice
+- `--mode max` or `--mode min` controls whether the conditioned property is maximized or minimized
+
+The percentile arguments define the property slice used for conditional flow matching. Adjust them to match the reward/property regime you want the model to learn.
+
+### 5. Evaluate a trained flow checkpoint
+
+The same flow training script also supports evaluation sweeps over guidance scales:
+
+```bash
+python otcfm_trainer.py \
+  --eval_ckpt ../../artifacts/ckpt/flow/otcfm_step_50000.pt \
+  --eval_scales 0.0,1.0,1.5,2.0,3.0 \
+  --eval_samples 10000
+```
 ## Inference
 <a id="inference"></a>
 
