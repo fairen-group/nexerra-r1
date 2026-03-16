@@ -96,9 +96,6 @@ python preprocess.py --mode gen --src ../../data/raw/training_dataset.csv --dst 
 
 This produces artifacts such as:
 - `data/processed/tokenized_dataset.pkl`
-- `data/processed/train_smiles.txt`
-- `data/processed/val_smiles.txt`
-- `data/processed/test_smiles.txt`
 - `data/processed/tok2id.json`
 - `data/processed/id2tok.json`
 
@@ -119,7 +116,7 @@ python Trainer.py \
   --batch 128
 ```
 
-The production-oriented defaults in the training script use a `latent_dim` of `128` and `120` epochs. Checkpoints are written per epoch as:
+The production-oriented defaults in the training script use a `latent_dim` of `128`. Checkpoints are written per epoch as:
 
 ```text
 artifacts/ckpt/vae/vae_epoch_<n>.pt
@@ -172,7 +169,7 @@ python otcfm_trainer.py \
   --percentile_start 70 \
   --percentile_end 100 \
   --steps 50000 \
-  --batch 4096 \
+  --batch 2048 \
   --out_path ../../artifacts/ckpt/flow/otcfm_step_50000.pt
 ```
 
@@ -468,22 +465,7 @@ For some build workflows, additional external files are expected:
 - ToBaCCo templates and node/edge directories
 - CIF templates for the selected net
 
-## Production Notes
-<a id="production-notes"></a>
-
-If you are moving to a production inference-only deployment:
-
-- keep `nexerra/`
-- keep `artifacts/`
-- keep the required files in `data/processed/`
-- keep `designed/linker/`
-- keep only the specific reference assets you still need under `designed/reference/`
-- exclude `evaluation/`
-- exclude generated CIF outputs if you are not shipping MOF construction artifacts
-
 ## Additional Notes
 <a id="additional-notes"></a>
-
-- The evaluation scripts are not required for production inference.
 - GPU speeds up sampling significantly, but chemistry-heavy filtering and RDKit-based analysis remain CPU-bound.
 - Some MOF construction utilities depend on external tooling not bundled in this repo.
