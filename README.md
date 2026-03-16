@@ -3,7 +3,7 @@
 
 # Nexerra
 ![Demo](assets/header.gif)
-Open-source code for linker design and flow-guided molecular generation in the Nexerra workflow.
+Open-source code for Nexerra$^{R1}$ workflow.
 
 This repository currently focuses on model training and inference for:
 - direct linker design
