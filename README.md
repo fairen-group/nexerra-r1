@@ -57,11 +57,31 @@ This repo is intended to be used through a curated Conda environment.
    artifacts/ckpt/vae/no_prop_vae_epoch_120.pt
    artifacts/ckpt/flow/otcfm_step_180000.pt
    artifacts/latent_banks/latent_bank.pt
+   artifacts/latent_banks/latent_bank_len.pt
    data/processed/tokenized_dataset.pkl
    data/processed/train_smiles.txt
-   data/processed/processed_stats.json
    designed/linker/inference_config.txt
    ```
+
+5. **Download external runtime assets**
+
+   Large runtime assets are intentionally not stored in Git. After cloning, fetch them from your Zenodo deposit into the expected locations:
+
+   ```bash
+   python setup_assets.py --base-url "https://zenodo.org/records/<record-id>/files"
+   ```
+
+   The bootstrapper downloads the default runtime bundle into:
+   - `artifacts/ckpt/vae/no_prop_vae_epoch_120.pt`
+   - `artifacts/ckpt/flow/otcfm_step_180000.pt`
+   - `artifacts/latent_banks/latent_bank.pt`
+   - `artifacts/latent_banks/latent_bank_len.pt`
+   - `data/processed/tokenized_dataset.pkl`
+
+   Notes:
+   - By default, the remote filename is assumed to match the local filename.
+   - If the Zenodo deposit uses different filenames or explicit per-file URLs, provide a JSON manifest with `dest` plus either `remote_name` or `url`.
+   - `setup.py` is available as a thin wrapper around `setup_assets.py`, so `python setup.py --base-url ...` works too.
 
 
 ## Inference
