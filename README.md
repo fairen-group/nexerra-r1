@@ -104,21 +104,12 @@ This path uses CUDA automatically when a working GPU PyTorch install is availabl
 torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ```
 
-The output of flow inference is driven by:
-
-```text
-designed/linker/run/input.txt
-designed/linker/run/output.txt
-designed/linker/run/output_all.txt
-designed/linker/inference_config.txt
-```
-
 ## Supported Modes
 <a id="supported-modes"></a>
 
 ### Direct Design
 
-The direct design path uses the VAE-based inference code in:
+The direct design path uses:
 
 ```text
 nexerra/inference/Design.py
@@ -150,7 +141,7 @@ The flow-guided seeded design path uses:
 nexerra/inference/FlowDesign.py
 ```
 
-This combines a pretrained VAE with a latent OT-CFM model and uses the flow checkpoint metadata to steer decoding.
+This combines the pretrained VAE with a latent OT-CFM model and uses the flow checkpoint to steer decoding.
 
 ## Example Inputs
 <a id="example-inputs"></a>
