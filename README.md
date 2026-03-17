@@ -80,9 +80,90 @@ This repo is intended to be used through a curated Conda environment.
    Notes:
    - `setup.py` is available as a thin wrapper around `setup_assets.py`, so `python setup.py --base-url ...` works too.
 
+## Usage
 > [!TIP]
-> **Note for macOS Users:** If you are using macOS with Apple Silicon, please be aware of potential numerical instability with the MPS backend. We recommend using the CPU device for MatterSim on Mac to avoid these issues.
+> For best results, run inference in FlowDesign and/or ScaffDesign modes.
 
+<a id="inference"></a>
+
+The main production-relevant inference entrypoint is:
+
+```text
+nexerra/inference/FlowDesign.py
+```
+
+Run it from `nexerra/inference/`:
+
+```bash
+python FlowDesign.py --alpha 0.9 --num-samples 1000 --batch-size 128 --reward gas --threshold 0.5 --filters
+```
+
+This path uses CUDA automatically when a working GPU PyTorch install is available:
+
+```python
+torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+```
+
+The output of flow inference is driven by:
+
+```text
+designed/linker/run/input.txt
+designed/linker/run/output.txt
+designed/linker/run/output_all.txt
+designed/linker/inference_config.txt
+```
+
+## Supported Modes
+<a id="supported-modes"></a>
+
+### Direct Design
+
+The direct design path uses the VAE-based inference code in:
+
+```text
+nexerra/inference/Design.py
+```
+
+This mode expects a single seed linker with `[Lr]` connector atoms in:
+
+```text
+designed/linker/run/input.txt
+```
+
+### Scaffold-Constrained Design
+
+The scaffold-constrained path uses:
+
+```text
+nexerra/inference/ScafDesign.py
+```
+
+This mode expects:
+- first line: scaffold/core SMILES
+- second line: arm SMILES
+
+### Flow-Guided Seeded Design
+
+The flow-guided seeded design path uses:
+
+```text
+nexerra/inference/FlowDesign.py
+```
+
+This combines a pretrained VAE with a latent OT-CFM model and uses the flow checkpoint metadata to steer decoding.
+
+## Example Inputs
+<a id="example-inputs"></a>
+
+Example linker inputs are documented in:
+
+```text
+designed/linker/README.md
+```
+
+That file includes examples for:
+- direct design
+- scaffold-constrained design
 
 ## Model Training
 <a id="model-training"></a>
@@ -196,87 +277,6 @@ python otcfm_trainer.py \
   --eval_scales 0.0,1.0,1.5,2.0,3.0 \
   --eval_samples 10000
 ```
-## Inference
-<a id="inference"></a>
-
-The main production-relevant inference entrypoint is:
-
-```text
-nexerra/inference/FlowDesign.py
-```
-
-Run it from `nexerra/inference/`:
-
-```bash
-python FlowDesign.py --alpha 0.9 --num-samples 1000 --batch-size 128 --reward gas --threshold 0.5 --filters
-```
-
-This path uses CUDA automatically when a working GPU PyTorch install is available:
-
-```python
-torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-```
-
-The output of flow inference is driven by:
-
-```text
-designed/linker/run/input.txt
-designed/linker/run/output.txt
-designed/linker/run/output_all.txt
-designed/linker/inference_config.txt
-```
-
-## Supported Modes
-<a id="supported-modes"></a>
-
-### Direct Design
-
-The direct design path uses the VAE-based inference code in:
-
-```text
-nexerra/inference/Design.py
-```
-
-This mode expects a single seed linker with `[Lr]` connector atoms in:
-
-```text
-designed/linker/run/input.txt
-```
-
-### Scaffold-Constrained Design
-
-The scaffold-constrained path uses:
-
-```text
-nexerra/inference/ScafDesign.py
-```
-
-This mode expects:
-- first line: scaffold/core SMILES
-- second line: arm SMILES
-
-### Flow-Guided Seeded Design
-
-The flow-guided seeded design path uses:
-
-```text
-nexerra/inference/FlowDesign.py
-```
-
-This combines a pretrained VAE with a latent OT-CFM model and uses the flow checkpoint metadata to steer decoding.
-
-## Example Inputs
-<a id="example-inputs"></a>
-
-Example linker inputs are documented in:
-
-```text
-designed/linker/README.md
-```
-
-That file includes examples for:
-- direct design
-- scaffold-constrained design
 
 ## Repository Layout
 <a id="repository-layout"></a>
