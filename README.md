@@ -49,6 +49,7 @@ This repo is intended to be used through a curated Conda environment.
    ```
 
 4. **Keep the required repo artifacts in place**
+5. 
    The current inference code expects these assets to exist:
 
    ```text
@@ -61,7 +62,7 @@ This repo is intended to be used through a curated Conda environment.
    designed/linker/inference_config.txt
    ```
 
-5. **Download external runtime assets**
+6. **Download external runtime assets**
 
    Large runtime assets are intentionally not stored in Git. After cloning, fetch them from the Zenodo deposit into the expected locations (if this is not up already, it will be soon; any relevant instructions may be updated):
 
@@ -78,6 +79,10 @@ This repo is intended to be used through a curated Conda environment.
 
    Notes:
    - `setup.py` is available as a thin wrapper around `setup_assets.py`, so `python setup.py --base-url ...` works too.
+
+> [!TIP]
+> **Note for macOS Users:** If you are using macOS with Apple Silicon, please be aware of potential numerical instability with the MPS backend. We recommend using the CPU device for MatterSim on Mac to avoid these issues.
+
 
 ## Model Training
 <a id="model-training"></a>
