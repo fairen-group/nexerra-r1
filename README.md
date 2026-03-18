@@ -205,7 +205,7 @@ Run it from `nexerra/model/` with the tokenized dataset and the raw training CSV
 python Trainer.py \
   --data ../../data/processed/tokenized_dataset.pkl \
   --rs ../../data/raw/training_dataset.csv \
-  --batch 128
+  --batch 128 --ckpt ../../artifacts/ckpt/vae/
 ```
 
 The production-oriented defaults in the training script use a `latent_dim` of `128`. Checkpoints are written per epoch as:
