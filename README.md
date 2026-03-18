@@ -175,7 +175,7 @@ The training workflow has two stages:
 - train the VAE linker model
 - build a latent bank and train the OT-CFM flow model on top of the pretrained VAE
 
->[!INFO]
+>[!IMPORTANT]
 >Training wall-clock time was not systematically benchmarked, but in our runs the base VAE and flow model together took approximately 48 hours each on an NVIDIA RTX 5080.
 
 ### 1. Prepare tokenized training data
