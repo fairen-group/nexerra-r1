@@ -274,25 +274,34 @@ python otcfm_trainer.py \
 ## Repository Layout
 <a id="repository-layout"></a>
 
-The most relevant top-level directories are:
-
-- `nexerra/`
-  Core code for models, inference, utilities, and build scripts.
-
-- `artifacts/`
-  Model checkpoints, latent banks, and related runtime assets.
-
-- `data/processed/`
-  Tokenizer data and processed statistics used by inference and evaluation paths.
-
-- `designed/linker/`
-  User-facing linker inference inputs, outputs, configuration, and examples.
-
-- `designed/reference/`
-  Reference molecules, linkers, scaffold variants, and related generated assets.
-
-- `designed/cif/`
-  CIF outputs, examples, and build-side artifacts. This is not required for core inference-only production use.
+```text
+.
+├── nexerra                          <- Core source code
+│   ├── model                        <- VAE architecture and VAE training code
+│   ├── cfm                          <- Latent bank construction and OT-CFM flow training
+│   ├── inference                    <- Direct, scaffold-constrained, and flow-guided inference entrypoints
+│   ├── build                        <- MOF/CIF construction utilities
+│   └── utils                        <- Tokenization, preprocessing, analysis, and helper modules
+├── artifacts                        <- External/runtime artifacts and training outputs
+│   ├── ckpt                         <- VAE and flow checkpoints
+│   ├── latent_banks                 <- Saved latent bank tensors for flow training/inference
+│   └── logs                         <- Training and metrics outputs
+├── data                             <- Dataset inputs and processed training assets
+│   ├── raw                          <- Raw CSV datasets
+│   ├── processed                    <- Tokenized dataset bundle and split SMILES files
+│   ├── analysis                     <- Analysis text outputs and summary statistics
+│   └── figures                      <- Generated training/evaluation figures
+├── designed                         <- User-facing design inputs, outputs, and references
+│   ├── linker                       <- Inference config, sample inputs, and runtime linker I/O
+│   ├── reference                    <- Reference linkers, CIFs, and scaffold assets
+│   └── cif                          <- CIF-side generated artifacts and examples
+├── assets                           <- README/demo assets
+├── environment.yml                  <- Conda environment definition
+├── setup_assets.py                  <- Bootstrap external runtime assets from Zenodo
+├── setup.py                         <- Thin compatibility wrapper for the asset bootstrapper
+├── LICENSE.md                       <- MIT license
+└── README.md                        <- Project documentation
+```
 
 ## Dependencies
 <a id="dependencies"></a>
