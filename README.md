@@ -306,13 +306,6 @@ python otcfm_trainer.py \
 ## Dependencies
 <a id="dependencies"></a>
 
-This repository currently mixes:
-- core inference dependencies
-- optional training and evaluation dependencies
-- MOF construction dependencies
-- vendored utility dependencies
-- a separate bio/reward subproject under `nexerra/inference/bio/`
-
 For most users, the practical dependency entrypoint is:
 
 ```bash
@@ -320,157 +313,22 @@ conda env create -f environment.yml
 conda activate nexerra
 ```
 
-The breakdown below exists so it is clear what the repo actually depends on and which parts are optional.
+This environment covers the main Nexerra workflow:
+- VAE training and preprocessing
+- OT-CFM flow training
+- direct, scaffold-constrained, and flow-guided inference
+- analysis and diagnostics utilities
 
-### Core inference dependencies
+At a high level, `environment.yml` bundles:
+- core scientific packages such as `numpy`, `pandas`, `scipy`, and `matplotlib`
+- chemistry/tooling packages such as `rdkit`, `selfies`, and `openbabel`
+- PyTorch and model-training packages such as `torch`, `botorch`, `torchdiffeq`, and `torchcfm`
+- utility packages such as `tqdm`, `pyfiglet`, and `umap-learn`
 
-These are the practical dependencies for the main linker inference paths in:
-- `nexerra/inference/Design.py`
-- `nexerra/inference/ScafDesign.py`
-- `nexerra/inference/FlowDesign.py`
-
-Required Python packages:
-- `torch`
-- `numpy`
-- `pandas`
-- `rdkit`
-- `selfies`
-- `tqdm`
-- `pyfiglet`
-- `botorch`
-- `torchdiffeq`
-- `torchcfm`
-
-Also used by core inference and reward logic:
-- `matplotlib` for some utility and analysis paths
-- `pickle`
-- `json`
-- `pathlib`
-- `argparse`
-- `logging`
-
-### MOF construction and CIF tooling
-
-Used by:
-- `nexerra/build/Construct.py`
-- `nexerra/build/ScaffConstruct.py`
-- `nexerra/build/addH.py`
-
-Required or expected:
-- `rdkit`
-- `openbabel` / `pybel`
-- external `tobacco3.0` checkout for MOF assembly
-
-Notes:
-- `Construct.py` and `ScaffConstruct.py` do not bundle ToBaCCo; you need to provide it separately.
-- `addH.py` uses Open Babel Python bindings.
-
-### Training and preprocessing dependencies
-
-Used by the VAE and flow training / preprocessing utilities:
-- `nexerra/utils/preprocess.py`
-- `nexerra/model/`
-- `nexerra/cfm/`
-
-Required Python packages:
-- `torch`
-- `numpy`
-- `pandas`
-- `rdkit`
-- `selfies`
-- `tqdm`
-- `pyfiglet`
-- `torchdiffeq`
-- `torchcfm`
-
-### Analysis and diagnostics dependencies
-
-Used by:
-- `nexerra/utils/analysis.py`
-- `nexerra/utils/diagnostics.py`
-
-Required Python packages:
-- `matplotlib`
-- `umap-learn`
-- `rdkit`
-- `numpy`
-- `pandas`
-- `tqdm`
-
-### Vendored SCScore utility dependencies
-
-The repository vendors SCScore-related code under:
-- `nexerra/utils/scscore/`
-
-Inference-side usage mainly depends on:
-- `rdkit`
-- `numpy`
-- `six`
-
-Legacy training utilities inside the vendored SCScore code additionally use:
-- `tensorflow`
-- `h5py`
-- `gzip`
-- `pymongo`
-
-These are not required for normal Nexerra inference.
-
-### Bio / reward subproject dependencies
-
-There is a separate subproject at:
-- `nexerra/inference/bio/`
-
-Its `pyproject.toml` declares:
-- `python >=3.10,<3.13`
-- `pandas`
-- `numpy`
-- `pyarrow`
-- `rdkit-pypi`
-- `jupyter`
-- `ipykernel`
-- `matplotlib`
-- `python-dateutil`
-- `tqdm`
-- `umap-learn`
-- `pytest` as a dev dependency
-
-This subproject is not required for the main production linker inference path.
-
-### Standard library modules used throughout the repo
-
-Commonly used built-in modules include:
-- `os`
-- `sys`
-- `math`
-- `json`
-- `pickle`
-- `argparse`
-- `logging`
-- `pathlib`
-- `subprocess`
-- `random`
-- `collections`
-- `itertools`
-- `warnings`
-- `csv`
-- `time`
-- `tempfile`
-- `shutil`
-
-### Runtime artifacts and non-package dependencies
-
-The code also depends on several on-disk assets rather than installable packages:
-- `artifacts/ckpt/vae/no_prop_vae_epoch_120.pt`
-- `artifacts/ckpt/flow/otcfm_step_180000.pt`
-- `artifacts/latent_banks/latent_bank.pt`
-- `data/processed/tokenized_dataset.pkl`
-- `data/processed/train_smiles.txt`
-- `data/processed/processed_stats.json`
-- `designed/linker/inference_config.txt`
-
-For some build workflows, additional external files are expected:
-- ToBaCCo templates and node/edge directories
-- CIF templates for the selected net
+Additional notes:
+- MOF construction utilities under `nexerra/build/` still expect an external `tobacco3.0` checkout.
+- The bio/reward subproject under `nexerra/inference/bio/` has its own dependency definition in `nexerra/inference/bio/pyproject.toml`.
+- Vendored SCScore code under `nexerra/utils/scscore/` includes some legacy utilities, but normal Nexerra inference does not require the full legacy SCScore training stack.
 
 ## Additional Notes
 <a id="additional-notes"></a>
