@@ -337,7 +337,7 @@ Additional notes:
 - The bio/reward subproject under `nexerra/inference/bio/` has its own dependency definition in `nexerra/inference/bio/pyproject.toml`.
 - The SCScore code under `nexerra/utils/scscore/` includes some legacy utilities, but normal Nexerra inference does not require the full legacy SCScore training stack. If you use this part, please cite the parent publication as,
 
-```
+```bib
 @article{coley2018scscore,
   title={SCScore: synthetic complexity learned from a reaction corpus},
   author={Coley, Connor W and Rogers, Luke and Green, William H and Jensen, Klavs F},
