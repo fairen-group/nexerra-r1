@@ -332,18 +332,23 @@ This environment covers the main Nexerra workflow:
 - direct, scaffold-constrained, and flow-guided inference
 - analysis and diagnostics utilities
 
-At a high level, `environment.yml` bundles:
-- core scientific packages such as `numpy`, `pandas`, `scipy`, and `matplotlib`
-- chemistry/tooling packages such as `rdkit`, `selfies`, and `openbabel`
-- PyTorch and model-training packages such as `torch`, `botorch`, `torchdiffeq`, and `torchcfm`
-- utility packages such as `tqdm`, `pyfiglet`, and `umap-learn`
-
 Additional notes:
-- MOF construction utilities under `nexerra/build/` still expect an external `tobacco3.0` checkout.
+- MOF construction utilities under `nexerra/build/` still expect an external `tobacco3.0` package. Alternatively, the system can be made compatible with PoreMake. 
 - The bio/reward subproject under `nexerra/inference/bio/` has its own dependency definition in `nexerra/inference/bio/pyproject.toml`.
-- Vendored SCScore code under `nexerra/utils/scscore/` includes some legacy utilities, but normal Nexerra inference does not require the full legacy SCScore training stack.
+- The SCScore code under `nexerra/utils/scscore/` includes some legacy utilities, but normal Nexerra inference does not require the full legacy SCScore training stack. If you use this part, please cite the parent publication as,
 
-## Additional Notes
-<a id="additional-notes"></a>
-- GPU speeds up sampling significantly, but chemistry-heavy filtering and RDKit-based analysis remain CPU-bound.
-- Some MOF construction utilities depend on external tooling not bundled in this repo.
+```
+@article{coley2018scscore,
+  title={SCScore: synthetic complexity learned from a reaction corpus},
+  author={Coley, Connor W and Rogers, Luke and Green, William H and Jensen, Klavs F},
+  journal={Journal of chemical information and modeling},
+  volume={58},
+  number={2},
+  pages={252--261},
+  year={2018},
+  publisher={ACS Publications}
+}
+```
+
+## Funding
+This work was primarily carried out at the Adsorption and Advanced Materials (A2ML) Laboratory. Supported by the Winton Cambridge - Berkeley Exchange Fellowship, the Engineering and Physical Sciences Research Council (EPSRC), the Trinity Henry-Barlow (Honorary) Scholarship and Harding Distinguished Postgraduate Scholarship Programme. The authors further acknowledge the allocation of beamtime at Synchrotron SOLEIL and the help of the PROXIMA 2A staff in performing SCXRD experiments.
