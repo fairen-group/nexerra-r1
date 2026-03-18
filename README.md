@@ -79,7 +79,7 @@ This repo is intended to be used through a curated Conda environment.
 
    Notes:
    - `zenodo_get` is the preferred download path for Zenodo-hosted assets.
-   - If you prefer direct file URLs, `python setup_assets.py --base-url "https://zenodo.org/records/<record-id>/files"` still works.
+   - If this does not work, use direct file URLs, `python setup_assets.py --base-url "https://zenodo.org/records/<record-id>/files"`.
    - `setup.py` is available as a thin wrapper around `setup_assets.py`, so `python setup.py --base-url ...` works too.
 
 ## Usage
@@ -87,10 +87,10 @@ This repo is intended to be used through a curated Conda environment.
 > For best results, run inference in FlowDesign and/or ScaffDesign modes.
 
 ![Compilation](assets/compilation.png)
-
+> Representative examples of the generative capabilities of Nexerra-R1.
 <a id="inference"></a>
 
-The main production-relevant inference entrypoint is:
+The main production-relevant inference entrypoints are:
 
 ```text
 nexerra/inference/FlowDesign.py
@@ -100,6 +100,12 @@ Run it from `nexerra/inference/`:
 
 ```bash
 python FlowDesign.py --alpha 0.9 --num-samples 1000 --batch-size 128 --reward gas --threshold 0.5 --filters
+```
+
+and
+
+```text
+nexerra/inference/ScafDesign.py
 ```
 
 This path uses CUDA automatically when a working GPU PyTorch install is available:
@@ -119,10 +125,10 @@ The direct design path uses:
 nexerra/inference/Design.py
 ```
 
-This mode expects a single seed linker with `[Lr]` connector atoms in:
+For instructions on using this mode, look at:
 
 ```text
-designed/linker/run/input.txt
+designed/linker/README.md
 ```
 
 ### Scaffold-Constrained Design
@@ -133,9 +139,11 @@ The scaffold-constrained path uses:
 nexerra/inference/ScafDesign.py
 ```
 
-This mode expects:
-- first line: scaffold/core SMILES
-- second line: arm SMILES
+For instructions on using this mode, look at:
+
+```text
+designed/linker/README.md
+```
 
 ### Flow-Guided Seeded Design
 
@@ -166,6 +174,9 @@ That file includes examples for:
 The training workflow has two stages:
 - train the VAE linker model
 - build a latent bank and train the OT-CFM flow model on top of the pretrained VAE
+
+>[!INFO]
+>Training wall-clock time was not systematically benchmarked, but in our runs the base VAE and flow model together took approximately 48 hours each on an NVIDIA RTX 5080.
 
 ### 1. Prepare tokenized training data
 
