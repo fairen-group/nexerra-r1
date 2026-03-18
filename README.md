@@ -64,10 +64,10 @@ This repo is intended to be used through a curated Conda environment.
 
 6. **Download external runtime assets**
 
-   Large runtime assets are intentionally not stored in Git. After cloning, fetch them from the Zenodo deposit into the expected locations (if this is not up already, it will be soon; any relevant instructions may be updated):
+   Large runtime assets are intentionally not stored in Git. After cloning, fetch them from the Zenodo deposit into the expected locations.
 
    ```bash
-   python setup_assets.py --base-url "https://zenodo.org/records/<record-id>/files"
+   python setup_assets.py --zenodo-record <record-id>
    ```
 
    The bootstrapper downloads the default runtime bundle into:
@@ -78,6 +78,8 @@ This repo is intended to be used through a curated Conda environment.
    - `data/processed/tokenized_dataset.pkl`
 
    Notes:
+   - `zenodo_get` is the preferred download path for Zenodo-hosted assets.
+   - If you prefer direct file URLs, `python setup_assets.py --base-url "https://zenodo.org/records/<record-id>/files"` still works.
    - `setup.py` is available as a thin wrapper around `setup_assets.py`, so `python setup.py --base-url ...` works too.
 
 ## Usage

@@ -17,7 +17,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -49,7 +52,13 @@ DEFAULT_FILES = [
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description = "Download Nexerra runtime assets from Zenodo")
-    
+
+    parser.add_argument(
+        "--zenodo-record",
+        default = os.environ.get("NEXERRA_ZENODO_RECORD"),
+        help = "Zenodo record ID to download via zenodo_get.",
+    )
+
     parser.add_argument(
         "--base-url",
         default = os.environ.get("NEXERRA_ASSET_BASE_URL"),
@@ -130,6 +139,62 @@ def download_file(url: str, dest: Path, timeout: int) -> None:
     print(f"{Colors.GREEN}Ready:{Colors.RESET} {dest}\n")
 
 
+def download_with_zenodo_get(record: str, files: list[dict[str, str]], overwrite: bool, dry_run: bool) -> int:
+    if shutil.which("zenodo_get") is None:
+        print(
+            f"{Colors.RED}Error:{Colors.RESET} zenodo_get is not installed or not on PATH.",
+            file = sys.stderr,
+        )
+        return 2
+
+    planned: list[tuple[Path, str]] = []
+    for entry in files:
+        dest = REPO_ROOT / entry["dest"]
+        remote_name = entry.get("remote_name") or Path(entry["dest"]).name
+        if ensure_dest_ready(dest, overwrite):
+            planned.append((dest, remote_name))
+
+    if not planned:
+        print(f"{Colors.GREEN}{Colors.BOLD}All requested assets are already present.{Colors.RESET}")
+        return 0
+
+    if dry_run:
+        for dest, remote_name in planned:
+            print(f"{Colors.YELLOW}Dry run:{Colors.RESET} zenodo:{record}/{remote_name} -> {dest}")
+        return 0
+
+    with tempfile.TemporaryDirectory(prefix = "nexerra-zenodo-") as tmpdir:
+        cmd = ["zenodo_get", record, "-o", tmpdir]
+        print(f"{Colors.BLUE}Fetching Zenodo record:{Colors.RESET} {record}")
+        print(f"{Colors.BLUE}Command:{Colors.RESET} {' '.join(cmd)}")
+        try:
+            subprocess.run(cmd, check = True)
+        except subprocess.CalledProcessError as exc:
+            print(f"{Colors.RED}zenodo_get failed:{Colors.RESET} {exc}", file = sys.stderr)
+            return 1
+
+        failures = 0
+        tmp_path = Path(tmpdir)
+        for dest, remote_name in planned:
+            source = tmp_path / remote_name
+            if not source.is_file():
+                failures += 1
+                print(
+                    f"{Colors.RED}Missing file in Zenodo record:{Colors.RESET} {remote_name}",
+                    file = sys.stderr,
+                )
+                continue
+            dest.parent.mkdir(parents = True, exist_ok = True)
+            shutil.move(str(source), str(dest))
+            print(f"{Colors.GREEN}Ready:{Colors.RESET} {dest}")
+
+        if failures:
+            print(f"{Colors.YELLOW}{failures} file(s) failed.{Colors.RESET}", file = sys.stderr)
+            return 1
+
+    return 0
+
+
 def main() -> int:
     args = parse_args()
     try:
@@ -139,15 +204,28 @@ def main() -> int:
         return 2
 
     print(f"{Colors.HEADER}{Colors.BOLD}=== Nexerra Asset Setup ==={Colors.RESET}")
-    if args.base_url:
+    if args.zenodo_record:
+        print(f"{Colors.BOLD}Zenodo record:{Colors.RESET} {args.zenodo_record}")
+    elif args.base_url:
         print(f"{Colors.BOLD}Base URL:{Colors.RESET} {args.base_url}")
     elif not any("url" in entry for entry in files):
         print(
-            f"{Colors.RED}Error:{Colors.RESET} no --base-url provided and manifest entries do not define explicit URLs.",
+            f"{Colors.RED}Error:{Colors.RESET} provide --zenodo-record, --base-url, or manifest entries with explicit URLs.",
             file=sys.stderr,
         )
         return 2
     print()
+
+    if args.zenodo_record:
+        result = download_with_zenodo_get(
+            record = str(args.zenodo_record),
+            files = files,
+            overwrite = args.overwrite,
+            dry_run = args.dry_run,
+        )
+        if result == 0:
+            print(f"{Colors.GREEN}{Colors.BOLD} All requested assets are ready.{Colors.RESET}")
+        return result
 
     failures = 0
     for entry in files:
