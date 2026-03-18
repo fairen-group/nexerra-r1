@@ -86,6 +86,8 @@ This repo is intended to be used through a curated Conda environment.
 > [!TIP]
 > For best results, run inference in FlowDesign and/or ScaffDesign modes.
 
+![Compilation](assets/compilation.png)
+
 <a id="inference"></a>
 
 The main production-relevant inference entrypoint is:
