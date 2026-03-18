@@ -63,6 +63,7 @@ from nexerra.model.DataLoader import TrainDataLoader
 # CSV logging configuration
 # -------------------------------------------
 log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'artifacts', 'logs'))
+os.makedirs(log_dir, exist_ok = True)
 import csv 
 csv_log_path = "metrics.csv"
 csv_fieldnames = ["epoch", "loss", "rec_loss","kl_loss", "active_units", "token_acc", "recon_acc", "int_div", "validity", "novelty"]
