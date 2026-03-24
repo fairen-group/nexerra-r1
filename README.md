@@ -12,7 +12,7 @@ Open-source code for NexerraR1 as described in the following pre-print.
 @article{menon2026a,
   title={A chemical language model for reticular materials design},
   author={Menon, Dhruv and Singh, Vivek and Chen, Xu and Alizadeh Kiapi, Mohammad Reza and Zyuzin, Ivan and MacLeod, Hamish W and Rampal, Nakul and Shepard, William and Yaghi, Omar and Fairen-Jimenez, David},
-  journal={arXiv preprint},
+  journal={arXiv preprint arXiv:2603.20389},
   year={2026}
 }
 ```
