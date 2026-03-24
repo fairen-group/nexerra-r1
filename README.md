@@ -6,7 +6,7 @@
 # Nexerra-R1
 ![Demo](assets/header.gif)
 
-Open-source code for NexerraR1 as described in the following \href{https://arxiv.org/abs/2603.20389}[pre-print].
+Open-source code for NexerraR1 as described in the following \href[pre-print](https://arxiv.org/abs/2603.20389).
 
 ```bib
 @article{menon2026a,
