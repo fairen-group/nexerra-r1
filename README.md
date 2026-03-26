@@ -9,9 +9,9 @@
 Open-source code for NexerraR1 as described in the following [pre-print](https://arxiv.org/abs/2603.20389).
 
 ```bib
-@article{menon2026a,
+@article{menon2026chemical,
   title={A chemical language model for reticular materials design},
-  author={Menon, Dhruv and Singh, Vivek and Chen, Xu and Alizadeh Kiapi, Mohammad Reza and Zyuzin, Ivan and MacLeod, Hamish W and Rampal, Nakul and Shepard, William and Yaghi, Omar and Fairen-Jimenez, David},
+  author={Menon, Dhruv and Singh, Vivek and Chen, Xu and Kiapi, Mohammad Reza Alizadeh and Zyuzin, Ivan and Macleod, Hamish W and Rampal, Nakul and Shepard, William and Yaghi, Omar M and Fairen-Jimenez, David},
   journal={arXiv preprint arXiv:2603.20389},
   year={2026}
 }
