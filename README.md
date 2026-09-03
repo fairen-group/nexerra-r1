@@ -18,6 +18,9 @@
 
 Open-source code for NexerraR1 as described in the following [pre-print](https://arxiv.org/abs/2603.20389).
 
+<details>
+<summary><strong>Citation</strong></summary>
+
 ```bib
 @article{menon2026chemical,
   title={A chemical language model for reticular materials design},
@@ -26,6 +29,8 @@ Open-source code for NexerraR1 as described in the following [pre-print](https:/
   year={2026}
 }
 ```
+
+</details>
 
 This repository currently focuses on model training and inference for:
 - direct linker design using the 'Direct Design' mode
@@ -106,15 +111,18 @@ For training in the Conda environment:
 pip install -e ".[train]"
 ```
 
-### Runtime Assets
+<details>
+<summary><strong>Runtime Assets</strong></summary>
 
 The current inference code expects:
 
 ```text
 artifacts/ckpt/vae/no_prop_vae_epoch_120.pt
 artifacts/ckpt/flow/otcfm_step_180000_len.pt
+artifacts/ckpt/flow/otcfm_step_180000_logP.pt
 artifacts/latent_banks/latent_bank.pt
 artifacts/latent_banks/latent_bank_len.pt
+artifacts/latent_banks/latent_bank_logp.pt
 data/processed/tokenized_dataset.pkl
 data/processed/train_smiles.txt
 designed/linker/inference_config.txt
@@ -123,8 +131,10 @@ designed/linker/inference_config.txt
 The asset bootstrapper downloads:
 - `artifacts/ckpt/vae/no_prop_vae_epoch_120.pt`
 - `artifacts/ckpt/flow/otcfm_step_180000_len.pt`
+- `artifacts/ckpt/flow/otcfm_step_180000_logP.pt`
 - `artifacts/latent_banks/latent_bank.pt`
 - `artifacts/latent_banks/latent_bank_len.pt`
+- `artifacts/latent_banks/latent_bank_logp.pt`
 - `data/processed/tokenized_dataset.pkl`
 
 `zenodo_get` is the preferred download path. If it fails, use direct file URLs:
@@ -132,6 +142,8 @@ The asset bootstrapper downloads:
 ```bash
 nexerra-download-assets --base-url "https://zenodo.org/records/22284384"
 ```
+
+</details>
 
 ## Usage
 > [!TIP]
@@ -166,6 +178,9 @@ This path uses CUDA automatically when a working GPU PyTorch install is availabl
 ```python
 torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 ```
+
+<details>
+<summary><strong>Supported Modes and Example Inputs</strong></summary>
 
 ## Supported Modes
 <a id="supported-modes"></a>
@@ -220,6 +235,11 @@ designed/linker/README.md
 That file includes examples for:
 - direct design
 - scaffold-constrained design
+
+</details>
+
+<details>
+<summary><strong>Model Training</strong></summary>
 
 ## Model Training
 <a id="model-training"></a>
@@ -343,6 +363,11 @@ python otcfm_trainer.py \
   --eval_samples 10000
 ```
 
+</details>
+
+<details>
+<summary><strong>Repository Layout</strong></summary>
+
 ## Repository Layout
 <a id="repository-layout"></a>
 
@@ -374,6 +399,11 @@ python otcfm_trainer.py \
 ├── LICENSE.md                       <- MIT license
 └── README.md                        <- Project documentation
 ```
+
+</details>
+
+<details>
+<summary><strong>Dependencies</strong></summary>
 
 ## Dependencies
 <a id="dependencies"></a>
@@ -431,6 +461,8 @@ Additional notes:
   publisher={ACS Publications}
 }
 ```
+
+</details>
 
 ## Funding
 This work was primarily carried out at the Adsorption and Advanced Materials (A2ML) Laboratory. Supported by the Winton Cambridge - Berkeley Exchange Fellowship, the Engineering and Physical Sciences Research Council (EPSRC), the Trinity Henry-Barlow (Honorary) Scholarship and Harding Distinguished Postgraduate Scholarship Programme. The authors further acknowledge the allocation of beamtime at Synchrotron SOLEIL and the help of the PROXIMA 2A staff in performing SCXRD experiments.
