@@ -49,7 +49,7 @@ uv pip install -e .
 Download the pretrained checkpoints and tokenized dataset:
 
 ```bash
-nexerra-download-assets --zenodo-record 19100678
+nexerra-download-assets --zenodo-record 22284384
 ```
 
 Sanity-check the installed CLI:
@@ -122,7 +122,7 @@ The asset bootstrapper downloads:
 `zenodo_get` is the preferred download path. If it fails, use direct file URLs:
 
 ```bash
-nexerra-download-assets --base-url "https://zenodo.org/records/19100678"
+nexerra-download-assets --base-url "https://zenodo.org/records/22284384"
 ```
 
 ## Usage
