@@ -6,6 +6,10 @@
 # Nexerra-R1
 ![Demo](assets/header.png)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE.md)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
+[![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.22284384.svg)](https://doi.org/10.5281/zenodo.22284384)
+
 ### Update: NexerraR1 has been accepted for publication in JACS!
 
 Open-source code for NexerraR1 as described in the following [pre-print](https://arxiv.org/abs/2603.20389).
