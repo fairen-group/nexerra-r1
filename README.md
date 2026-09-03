@@ -6,6 +6,8 @@
 # Nexerra-R1
 ![Demo](assets/header.png)
 
+### Update: NexerraR1 has been accepted for publication in JACS!
+
 Open-source code for NexerraR1 as described in the following [pre-print](https://arxiv.org/abs/2603.20389).
 
 ```bib
@@ -16,8 +18,6 @@ Open-source code for NexerraR1 as described in the following [pre-print](https:/
   year={2026}
 }
 ```
-
-Update: NexerraR1 has been accepted for publication in JACS. 
 
 This repository currently focuses on model training and inference for:
 - direct linker design using the 'Direct Design' mode
