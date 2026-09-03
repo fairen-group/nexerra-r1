@@ -44,8 +44,10 @@ REPO_ROOT = Path(__file__).resolve().parent
 DEFAULT_FILES = [
     {"dest": "artifacts/ckpt/vae/no_prop_vae_epoch_120.pt"},
     {"dest": "artifacts/ckpt/flow/otcfm_step_180000_len.pt"},
+    {"dest": "artifacts/ckpt/flow/otcfm_step_180000_logP.pt"},
     {"dest": "artifacts/latent_banks/latent_bank.pt"},
     {"dest": "artifacts/latent_banks/latent_bank_len.pt"},
+    {"dest": "artifacts/latent_banks/latent_bank_logp.pt"},
     {"dest": "data/processed/tokenized_dataset.pkl"},
 ]
 
