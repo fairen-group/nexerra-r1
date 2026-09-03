@@ -4,13 +4,17 @@
 > This repository will be under continuous development; a stable version will be released upon final publication.
 
 # Nexerra-R1
-![Demo](assets/header.png)
+<p align="center">
+  <img src="assets/header.png" alt="Nexerra-R1 demo">
+</p>
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE.md)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
-[![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.22284384.svg)](https://doi.org/10.5281/zenodo.22284384)
+<p align="center">
+  <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
+  <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+"></a>
+  <a href="https://doi.org/10.5281/zenodo.22284384"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.22284384.svg" alt="Zenodo DOI"></a>
+</p>
 
-### Update: NexerraR1 has been accepted for publication in JACS!
+<h3 align="center">Update: NexerraR1 has been accepted for publication in JACS!</h3>
 
 Open-source code for NexerraR1 as described in the following [pre-print](https://arxiv.org/abs/2603.20389).
 
