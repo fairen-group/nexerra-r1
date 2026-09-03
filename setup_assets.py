@@ -43,7 +43,7 @@ REPO_ROOT = Path(__file__).resolve().parent
 # --- Default external assets expected for inference/runtime ---
 DEFAULT_FILES = [
     {"dest": "artifacts/ckpt/vae/no_prop_vae_epoch_120.pt"},
-    {"dest": "artifacts/ckpt/flow/otcfm_step_180000.pt"},
+    {"dest": "artifacts/ckpt/flow/otcfm_step_180000_len.pt"},
     {"dest": "artifacts/latent_banks/latent_bank.pt"},
     {"dest": "artifacts/latent_banks/latent_bank_len.pt"},
     {"dest": "data/processed/tokenized_dataset.pkl"},

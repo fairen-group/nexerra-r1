@@ -7,14 +7,15 @@ This document covers the current linker design inference inputs, basic usage, an
 ## How to Run
 The current production-relevant inference entrypoint is `nexerra/inference/FlowDesign.py` and `nexerra/inference/Design.py`
 
-Run it from `nexerra/inference/` (for example):
+After installation, run flow-guided inference with:
 
 ```bash
-python FlowDesign.py --alpha 0.9 --num-samples 1000 --batch-size 128 --reward gas --threshold 0.5 --filters
+nexerra-flow-design --alpha 0.9 --num-samples 1000 --batch-size 128 --reward gas --threshold 0.5 --filters
 ```
 
 Inputs and outputs:
-- Input seed file: `designed/linker/run/input.txt`
+- FlowDesign input seed file: `designed/linker/run/input.txt`
+- ScafDesign input scaffold/arm file: `designed/linker/run/input_scaf.txt`
 - Filtered output: `designed/linker/run/output.txt`
 - Full output: `designed/linker/run/output_all.txt`
 - Runtime settings: `designed/linker/inference_config.txt`
@@ -24,7 +25,7 @@ The scaffold-constrained mode is available through `nexerra/inference/ScafDesign
 ## Direct Design
 The model expects a single SMILES string with the coordinating moieties denoted as `[Lr]`.
 
-Example input:
+Example `designed/linker/run/input.txt`:
 
 ```txt
 [Lr]c1cc([Lr])cc([Lr])c1
@@ -71,7 +72,7 @@ Input format:
 - First line: core or scaffold
 - Second line: 2-connected arm
 
-Example input:
+Example `designed/linker/run/input_scaf.txt`:
 
 ```txt
 [Lr]c1cc([Lr])cc([Lr])c1

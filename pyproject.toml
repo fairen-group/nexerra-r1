@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools >= 69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nexerra-r1"
+version = "0.1.0"
+description = "Nexerra-R1: a chemical language model for reticular materials design"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE.md" }
+dependencies = [
+    "numpy>=1.26,<2.0",
+    "pandas>=2.2,<3.0",
+    "pyfiglet>=1.0,<2.0",
+    "python-dateutil>=2.9,<3.0",
+    "rdkit>=2024.3,<2025.0",
+    "selfies>=2.2,<3.0",
+    "torch>=2.5,<2.6",
+    "torchdiffeq>=0.2.5,<0.3",
+    "tqdm>=4.67,<5.0",
+    "zenodo-get>=1.6,<2.0",
+]
+
+[project.optional-dependencies]
+train = [
+    "botorch>=0.14,<0.15",
+    "gpytorch>=1.14,<1.15",
+    "h5py>=3.12,<4.0",
+    "matplotlib>=3.9,<4.0",
+    "pytorch-lightning>=2.5,<2.6",
+    "scikit-learn>=1.6,<2.0",
+    "scipy>=1.13,<2.0",
+    "tables>=3.10,<4.0",
+    "torchaudio>=2.5,<2.6",
+    "torchcfm>=1.0.7,<2.0",
+    "torchmetrics>=1.8,<2.0",
+    "torchvision>=0.20,<0.21",
+    "umap-learn>=0.5,<0.6",
+]
+build = [
+    "ase>=3.26,<4.0",
+    "openbabel-wheel>=3.1,<4.0",
+    "pymatgen>=2023.12,<2026.0",
+]
+dev = [
+    "pytest>=8.0,<9.0",
+]
+
+[tool.setuptools]
+py-modules = ["setup_assets"]
+
+[tool.setuptools.packages.find]
+include = ["nexerra*"]
+
+[tool.setuptools.package-data]
+"nexerra.utils.scscore" = [
+    "models/full_reaxys_model_2048bool/model.ckpt-10654.as_numpy.json.gz",
+    "models/full_reaxys_model_1024bool/model.ckpt-10654.as_numpy.json.gz",
+    "models/full_reaxys_model_1024uint8/model.ckpt-10654.as_numpy.json.gz",
+    "utils/SA_Score/fpscores.pkl.gz",
+]
+
+[project.scripts]
+nexerra-flow-design = "nexerra.inference.FlowDesign:main"
+nexerra-download-assets = "setup_assets:main"

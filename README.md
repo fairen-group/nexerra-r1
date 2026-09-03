@@ -4,7 +4,7 @@
 > This repository will be under continuous development; a stable version will be released upon final publication.
 
 # Nexerra-R1
-![Demo](assets/header.gif)
+![Demo](assets/header.png)
 
 Open-source code for NexerraR1 as described in the following [pre-print](https://arxiv.org/abs/2603.20389).
 
@@ -17,6 +17,8 @@ Open-source code for NexerraR1 as described in the following [pre-print](https:/
 }
 ```
 
+Update: NexerraR1 has been accepted for publication in JACS. 
+
 This repository currently focuses on model training and inference for:
 - direct linker design using the 'Direct Design' mode
 - scaffold-constrained linker design using the 'Scaffold-constrained Design' mode
@@ -25,62 +27,103 @@ This repository currently focuses on model training and inference for:
 ## Set-up
 <a id="set-up"></a>
 
-This repo is intended to be used through a curated Conda environment.
+The default install is for pretrained inference. Training from scratch and MOF construction utilities are [optional] extras. Use Conda only when compiled chemistry dependencies fail to install cleanly through `uv`.
 
-1. **Clone the repo**
+### 1. Clone the repo
 
-2. **Create the supported Conda environment**
+```bash
+git clone https://github.com/fairen-group/nexerra-r1.git
+cd nexerra-R1
+```
 
-   From the repo root, run:
+### 2. Install for pretrained inference
 
-   ```bash
-   conda env create -f environment.yml
-   conda activate nexerra
-   ```
+From the repo root:
 
-   The provided `environment.yml` is a curated environment for the main Nexerra workflow.
+```bash
+uv venv
+source .venv/bin/activate
+uv pip install -e .
+```
 
-3. **Add the repo to your `PYTHONPATH`**
+Download the pretrained checkpoints and tokenized dataset:
 
-   If you installed the repo into `/my/path/to/nexerra-R1`, run:
+```bash
+nexerra-download-assets --zenodo-record 19100678
+```
 
-   ```bash
-   export PYTHONPATH="/my/path/to/nexerra-R1"
-   ```
+Sanity-check the installed CLI:
 
-4. **Keep the required repo artifacts in place**
-5. 
-   The current inference code expects these assets to exist:
+```bash
+nexerra-flow-design --help
+```
 
-   ```text
-   artifacts/ckpt/vae/no_prop_vae_epoch_120.pt
-   artifacts/ckpt/flow/otcfm_step_180000.pt
-   artifacts/latent_banks/latent_bank.pt
-   artifacts/latent_banks/latent_bank_len.pt
-   data/processed/tokenized_dataset.pkl
-   data/processed/train_smiles.txt
-   designed/linker/inference_config.txt
-   ```
+### 3. Install for training from scratch
 
-6. **Download external runtime assets**
+Start from the inference install above, then add the training dependencies:
 
-   Large runtime assets are intentionally not stored in Git. After cloning, fetch them from the Zenodo deposit into the expected locations.
+```bash
+uv pip install -e ".[train]"
+```
 
-   ```bash
-   python setup_assets.py --zenodo-record 19100678
-   ```
+Then follow the [Model Training](#model-training) workflow:
+- preprocess the raw training CSV
+- train the VAE linker model
+- build the latent bank
+- train the OT-CFM flow model
 
-   The bootstrapper downloads the default runtime bundle into:
-   - `artifacts/ckpt/vae/no_prop_vae_epoch_120.pt`
-   - `artifacts/ckpt/flow/otcfm_step_180000.pt`
-   - `artifacts/latent_banks/latent_bank.pt`
-   - `artifacts/latent_banks/latent_bank_len.pt`
-   - `data/processed/tokenized_dataset.pkl`
+### 4. Install MOF construction utilities
 
-   Notes:
-   - `zenodo_get` is the preferred download path for Zenodo-hosted assets.
-   - If this does not work, use direct file URLs, `python setup_assets.py --base-url "https://zenodo.org/records/19100678"`
-   - `setup.py` is available as a thin wrapper around `setup_assets.py`, so `python setup.py --base-url ...` works too.
+The default inference install does not include Open Babel, ASE, or Pymatgen. If you need the utilities under `nexerra/build/`, install:
+
+```bash
+uv pip install -e ".[build]"
+```
+
+The `nexerra/build/` scripts still expect an external `tobacco3.0` installation.
+
+### 5. Conda fallback
+
+Use this path if `uv` fails on RDKit/Open Babel/Pymatgen or if you want the full curated chemistry environment:
+
+```bash
+conda env create -f environment.yml
+conda activate nexerra
+pip install -e .
+```
+
+For training in the Conda environment:
+
+```bash
+pip install -e ".[train]"
+```
+
+### Runtime Assets
+
+The current inference code expects:
+
+```text
+artifacts/ckpt/vae/no_prop_vae_epoch_120.pt
+artifacts/ckpt/flow/otcfm_step_180000_len.pt
+artifacts/latent_banks/latent_bank.pt
+artifacts/latent_banks/latent_bank_len.pt
+data/processed/tokenized_dataset.pkl
+data/processed/train_smiles.txt
+designed/linker/inference_config.txt
+```
+
+The asset bootstrapper downloads:
+- `artifacts/ckpt/vae/no_prop_vae_epoch_120.pt`
+- `artifacts/ckpt/flow/otcfm_step_180000_len.pt`
+- `artifacts/latent_banks/latent_bank.pt`
+- `artifacts/latent_banks/latent_bank_len.pt`
+- `data/processed/tokenized_dataset.pkl`
+
+`zenodo_get` is the preferred download path. If it fails, use direct file URLs:
+
+```bash
+nexerra-download-assets --base-url "https://zenodo.org/records/19100678"
+```
 
 ## Usage
 > [!TIP]
@@ -96,11 +139,13 @@ The main production-relevant inference entrypoints are:
 nexerra/inference/FlowDesign.py
 ```
 
-Run it from `nexerra/inference/`:
+After installation, run flow-guided inference with:
 
 ```bash
-python FlowDesign.py --alpha 0.9 --num-samples 1000 --batch-size 128 --reward gas --threshold 0.5 --filters
+nexerra-flow-design --alpha 0.9 --num-samples 1000 --batch-size 128 --reward gas --threshold 0.5 --filters
 ```
+
+By default, FlowDesign reads one seed SMILES from `designed/linker/run/input.txt`; scaffold-constrained design uses `designed/linker/run/input_scaf.txt`.
 
 and
 
@@ -170,6 +215,12 @@ That file includes examples for:
 
 ## Model Training
 <a id="model-training"></a>
+
+To train from scratch, install the training dependencies before running this workflow:
+
+```bash
+uv pip install -e ".[train]"
+```
 
 The training workflow has two stages:
 - train the VAE linker model
@@ -319,20 +370,43 @@ python otcfm_trainer.py \
 ## Dependencies
 <a id="dependencies"></a>
 
-For most users, the practical dependency entrypoint is:
+Dependency groups are defined in `pyproject.toml`:
+
+- default install: pretrained inference and asset download
+- `.[train]`: VAE training, OT-CFM flow training, preprocessing, and analysis
+- `.[build]`: MOF construction helpers that need ASE, Pymatgen, and Open Babel
+- `.[dev]`: test dependencies
+
+For pretrained inference:
 
 ```bash
-conda env create -f environment.yml
-conda activate nexerra
+uv pip install -e .
 ```
 
-This environment covers the main Nexerra workflow:
+For training from scratch:
+
+```bash
+uv pip install -e ".[train]"
+```
+
+For MOF construction utilities:
+
+```bash
+uv pip install -e ".[build]"
+```
+
+The default install covers:
+- direct, scaffold-constrained, and flow-guided inference
+- pretrained asset download via `nexerra-download-assets`
+
+The training extra adds dependencies for:
 - VAE training and preprocessing
 - OT-CFM flow training
-- direct, scaffold-constrained, and flow-guided inference
 - analysis and diagnostics utilities
 
 Additional notes:
+- If `uv pip install -e .` fails on compiled chemistry dependencies, use the Conda fallback in the setup section.
+- The Open Babel-based helper under `nexerra/build/addH.py` can be installed with `uv pip install -e ".[build]"`, but Conda is usually more reliable for Open Babel.
 - MOF construction utilities under `nexerra/build/` still expect an external `tobacco3.0` package. Alternatively, the system can be made compatible with PoreMake. 
 - The bio/reward subproject under `nexerra/inference/bio/` has its own dependency definition in `nexerra/inference/bio/pyproject.toml`.
 - The SCScore code under `nexerra/utils/scscore/` includes some legacy utilities, but normal Nexerra inference does not require the full legacy SCScore training stack. If you use this part, please cite the parent publication as,
