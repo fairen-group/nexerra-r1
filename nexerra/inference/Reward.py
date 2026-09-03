@@ -22,7 +22,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.
 
 import csv
 import numpy as np
-if not hasattr(np, 'bool'): np.bool = np.bool_ 
+if 'bool' not in np.__dict__: np.bool = np.bool_ 
 import random; random.seed(42)
 import math
 from math import exp
@@ -50,15 +50,19 @@ from rdkit.Chem.rdmolops import AddHs
 from nexerra.utils.scscore.scscore.standalone_model_numpy import SCScorer
 logger.info("Synthetic complexity scorer loaded")
 
+
+def scscore_weight_path() -> str:
+    current = os.path.dirname(os.path.abspath(__file__))
+    weight_path = os.path.join(current, '..', 'utils', 'scscore', 'models', 'full_reaxys_model_2048bool', 'model.ckpt-10654.as_numpy.json.gz')
+    weight_path = os.path.abspath(weight_path)
+    if not os.path.exists(weight_path):
+        raise FileNotFoundError(f"SCScore weights not found at {weight_path}")
+    return weight_path
+
 # --- Banner ---
 import pyfiglet
 def display_banner(): banner = pyfiglet.figlet_format("Nexerra", font="slant"); print(banner)
 
-# --- Filter warnings ---
-import warnings
-from botorch.exceptions.warnings import InputDataWarning
-with warnings.catch_warnings(): warnings.simplefilter("ignore", category = InputDataWarning)
-    
 # --- Reward Function Class ---
 '''The RewardFunction class encapsulates various reward components for linker 
 design. In principle, the reward functions can be adapted for different applications 
@@ -72,12 +76,7 @@ relevant to the manuscript'''
 class RewardFunction:
     def __init__(self):
         self.scmodel = SCScorer()
-        current = os.path.dirname(os.path.abspath(__file__))
-        weight_path = os.path.join(current, '..', 'utils', 'scscore', 'models', 'full_reaxys_model_2048bool', 'model.ckpt-10654.as_numpy.json.gz')
-        weight_path = os.path.abspath(weight_path)
-        if not os.path.exists(weight_path):
-            raise FileNotFoundError(f"SCScore weights not found at {weight_path}")
-        self.scmodel.restore(weight_path, FP_rad = 2, FP_len = 2048)
+        self.scmodel.restore(scscore_weight_path(), FP_rad = 2, FP_len = 2048)
 
     '''To make the reward scores more smooth, we apply smoothing functions;
     Depending on the property of interest, we either use sigmoid functions or gaussian functions'''    
@@ -319,7 +318,7 @@ class RewardFunction:
         # --- weights: 0.3 (length) + 0.2 (flex) + 0.3 (symm) + 0.2 (mw) [CAN BE TUNED] --- 
         return float(0.20 * d_len + 0.20 * d_flex + 0.40 * d_symm + 0.20 * d_mw)
 
-if __name__ == "__main__":
+def main(argv = None):
     display_banner()
     parser = argparse.ArgumentParser(description = 'Reward Functions')
     parser.add_argument('--mode', type = str, required = True, choices = ['distribution', 'benchmark'], help='distribution: calculate & save distributions of reward scores \
@@ -327,7 +326,7 @@ if __name__ == "__main__":
     parser.add_argument('--data', type = str, help = 'Path to the data file containing SMILES strings for analysing distributions')
     parser.add_argument('--samples', type = int, default = 1000, help = 'Number of samples to draw for distribution calculation (if applicable)')
     parser.add_argument('--smi', type = str, help = 'For testing, provide a path to .txt file containing the MOF linkers.')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.mode == 'distribution': 
         if not args.data: raise ValueError("Please provide a data file path using --data")
@@ -368,4 +367,7 @@ if __name__ == "__main__":
         for smi in linkers:
             score = rf.R_grav(smi); scores.append((smi, score))
             logger.info(f"SMILES: {smi} --> R_grav: {score:.4f}")
+
+if __name__ == "__main__":
+    main()
     

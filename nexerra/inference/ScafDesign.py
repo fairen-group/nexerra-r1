@@ -9,8 +9,8 @@
 #   - A core scaffold with multiple [Lr] anchors (first line)
 #   - A ditopic arm with [Lr] anchors (second line)
 #  Example usage: 
-#  python ScafDesign.py --delta 0.2 --mode design --filters --reward gas --output ../../designed/linker/run/output.csv
-#  python ScafDesign.py --mode test --reward grav --output ../../designed/linker/run/output.csv
+#  python ScafDesign.py --delta 0.2 --mode design --filters --reward gas --output designed/linker/run/output.csv
+#  python ScafDesign.py --mode test --reward grav --output designed/linker/run/output.csv
 #  Author: Dhruv Menon (dm958[at]cam.ac.uk)
 # 
 #  MIT License. See LICENSE in the repo root.
@@ -30,11 +30,12 @@ from tqdm import tqdm
 import argparse
 import pickle
 from itertools import combinations
+from pathlib import Path
 import logging
 import random
 import pandas as pd
 import numpy as np
-if not hasattr(np, 'bool'): 
+if 'bool' not in np.__dict__:
     np.bool = np.bool_
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ from rdkit.Chem import rdmolops as RDMolOps
 # --- Local imports ---
 from nexerra.model.HTVAE import VAEModel
 from nexerra.utils.tokenizer import Tokenizer
-from nexerra.inference.Reward import RewardFunction
+from nexerra.inference.Reward import RewardFunction, scscore_weight_path
 from nexerra.inference.Design import prepare_molecule, get_candidate_sites, placement_score, select_best_sites, place_lr_atoms, optimize_lr_placement
 
 # --- SCScore ---
@@ -60,6 +61,8 @@ import pyfiglet
 def display_banner():
     banner = pyfiglet.figlet_format("Nexerra", font="slant")
     print(banner)
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 ANCHOR_SYMBOL = "Lr"  # anchor symbol in SMILES, used as a handle
 # --- Grafting function ---
@@ -274,7 +277,7 @@ def fg_filter(smiles: List[str], azide: bool = True, diazo: bool = True, nitroso
 def scscore_filter(smiles: List[str], threshold: float = 3.5) -> List[str]:
     
     scmodel = SCScorer()
-    scmodel.restore(os.path.join('../utils','scscore', 'models', 'full_reaxys_model_2048bool', 'model.ckpt-10654.as_numpy.json.gz'), FP_rad = 2, FP_len = 2048)
+    scmodel.restore(scscore_weight_path(), FP_rad = 2, FP_len = 2048)
     filtered = []
     for smi in smiles:
         clean_smi = smi.replace("[Lr]", "*")
@@ -306,9 +309,8 @@ def reward_filter(rf: RewardFunction, toggle: int, smiles: List[str], threshold:
 # -----------------------------------------------------------    
 
 # --- Load inference configurations ---
-def load_config():
+def load_config(config_path: str | Path = REPO_ROOT / 'designed/linker/inference_config.txt'):
     '''Load inference configurations from a fixed (saved) file.'''
-    config_path = '../../designed/linker/inference_config.txt'
     config = {}
     with open(config_path, 'r') as f:
         for line in f:
@@ -344,7 +346,7 @@ def auto_configs(config, dataset):
     return config
 
 # --- Run ---
-if __name__ == "__main__":
+def main(argv = None):
     display_banner()
     parser = argparse.ArgumentParser(description='Inference.')
     parser.add_argument('--mode', type = str, choices=['design', 'test'], default = 'design', help = 'design: scaffold-constrained design; test: unit tests for internal consistency')
@@ -352,8 +354,12 @@ if __name__ == "__main__":
     parser.add_argument('--filters', action = 'store_true', help = 'Apply hard-chemistry filters after generation')
     parser.add_argument('--reward', type = str, choices=['gas', 'grav'], default = 'gas', help = 'Reward function to use for reward filtering')
     parser.add_argument('--threshold', type = float, default = 0.5, help = 'Reward threshold for filtering')
-    parser.add_argument('--output', type = str, default = '../../designed/linker/run/output.txt', help = 'Output file to save generated SMILES')
-    args = parser.parse_args()
+    parser.add_argument('--mparams', type = str, default = str(REPO_ROOT / 'data/processed/tokenized_dataset.pkl'), help = 'Path to the model parameters file')
+    parser.add_argument('--input', type = str, default = str(REPO_ROOT / 'designed/linker/run/input_scaf.txt'), help = 'Path to scaffold input file')
+    parser.add_argument('--output', type = str, default = str(REPO_ROOT / 'designed/linker/run/output.txt'), help = 'Output file to save generated SMILES')
+    parser.add_argument('--config', type = str, default = str(REPO_ROOT / 'designed/linker/inference_config.txt'), help = 'Path to inference_config.txt')
+    parser.add_argument('--vae-ckpt', type = str, default = str(REPO_ROOT / 'artifacts/ckpt/vae/no_prop_vae_epoch_120.pt'), help = 'Path to VAE checkpoint')
+    args = parser.parse_args(argv)
 
     # -----------------------------------------------------------
     # DO NOT CHANGE THIS BLOCK (unless you know what you're doing)
@@ -362,8 +368,8 @@ if __name__ == "__main__":
     # -----------------------------------------------------------    
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    ckpt_path = '../../artifacts/ckpt/vae/no_prop_vae_epoch_120.pt'
-    mparams = '../../data/processed/tokenized_dataset.pkl'
+    ckpt_path = args.vae_ckpt
+    mparams = args.mparams
     with open(mparams, 'rb') as f: dataset = pickle.load(f)
     tok2id = dataset['tok2id']
     id2tok = dataset['id2tok']
@@ -374,7 +380,7 @@ if __name__ == "__main__":
     padding_index = dataset['padding_index']
     unk_index = dataset['unk_index']
     # ---- Inference Config ----
-    inference_config = load_config()
+    inference_config = load_config(args.config)
     inference_config = auto_configs(inference_config, dataset)
     # ---- Model initialization ----
     model = VAEModel(
@@ -406,9 +412,9 @@ if __name__ == "__main__":
     logger.info("Model state loaded from %s", ckpt_path)
 
     # ---- Shared input/output setup ----
-    run_dir = '../../designed/linker/run/'
-    input = run_dir + 'input.txt'
+    input = args.input
     output = args.output
+    os.makedirs(os.path.dirname(os.path.abspath(output)), exist_ok = True)
     assert os.path.isfile(input), f"Input file {input} does not exist. Please provide a valid input file."
     with open(input, 'r') as f:
         lines = [line.strip() for line in f if line.strip()]
@@ -477,7 +483,7 @@ if __name__ == "__main__":
     elif args.mode == 'test':
         logger.info("Running scaffold assembly test on the input scaffold/arm pair.")
         scaffold_mol = Chem.MolFromSmiles(scaffold)
-        if scaffold_mol is None: raise ValueError("Invalid scaffold SMILES in input.txt")
+        if scaffold_mol is None: raise ValueError(f"Invalid scaffold SMILES in {input}")
         arm_connections = optimize_lr_placement(arm, num_connections = 2)
         arm_mol = Chem.MolFromSmiles(arm_connections)
         if arm_mol is None: raise ValueError("Invalid arm SMILES after connector placement")
@@ -502,4 +508,7 @@ if __name__ == "__main__":
 
     logger.info("Generated SMILES saved to %s", output)
     logger.info("Stored in decreasing order of reward score.")
+
+if __name__ == "__main__":
+    main()
 # ------------------------------------------------------------------

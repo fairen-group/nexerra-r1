@@ -26,7 +26,8 @@ import argparse
 import pickle
 import logging
 import numpy as np
-if not hasattr(np, 'bool'): np.bool = np.bool_
+if 'bool' not in np.__dict__: np.bool = np.bool_
+from pathlib import Path
 
 # --- logging ---
 logging.basicConfig(level=logging.INFO)
@@ -39,11 +40,7 @@ from typing import List
 # --- Local imports ---
 from nexerra.model.HTVAE import VAEModel
 from nexerra.utils.tokenizer import Tokenizer
-from nexerra.inference.Reward import RewardFunction
-
-import warnings
-from botorch.exceptions.warnings import InputDataWarning
-warnings.filterwarnings("ignore", category = InputDataWarning)
+from nexerra.inference.Reward import RewardFunction, scscore_weight_path
 
 # --- RDKit ---
 from rdkit import RDLogger
@@ -60,6 +57,8 @@ logger.info("Synthetic complexity scorer loaded.")
 
 import pyfiglet
 def display_banner(): banner = pyfiglet.figlet_format("Nexerra", font = "slant"); print(banner)
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # --- Neighborhood Sampling ---
 class Neighborhood:
@@ -212,7 +211,7 @@ def scscore_filter(smiles: List[str], threshold: float = 4.0) -> List[str]:
     '''Filter generated SMILES based on the SCScore'''
     # --- Initialize SCScore model ---
     scmodel = SCScorer()
-    scmodel.restore(os.path.join('../utils','scscore', 'models', 'full_reaxys_model_2048bool', 'model.ckpt-10654.as_numpy.json.gz'), FP_rad = 2, FP_len = 2048)
+    scmodel.restore(scscore_weight_path(), FP_rad = 2, FP_len = 2048)
     # --- Filter based on SCScore ---
     filtered = []
     for smi in smiles:
@@ -228,6 +227,202 @@ def scscore_filter(smiles: List[str], threshold: float = 4.0) -> List[str]:
 # Core logic has been described in the paper [...]
 # -------------------------------------
 
+def prepare_molecule(smi: str) -> Chem.Mol:
+    """
+    Prepare molecule for connector re-placement.
+
+    Existing [Lr] atoms are treated as placeholders:
+    - ring [Lr] atoms are converted to N
+    - non-ring [Lr] atoms are removed
+    """
+    mol = Chem.MolFromSmiles(smi, sanitize=False)
+    if mol is None:
+        raise ValueError(f"Invalid SMILES: {smi}")
+
+    Chem.SanitizeMol(mol)
+
+    rw_mol = Chem.RWMol(mol)
+    lr_indices = [
+        atom.GetIdx()
+        for atom in rw_mol.GetAtoms()
+        if atom.GetSymbol() == "Lr"
+    ]
+
+    for idx in sorted(lr_indices, reverse=True):
+        atom = rw_mol.GetAtomWithIdx(idx)
+
+        if atom.IsInRing():
+            atom.SetAtomicNum(7)
+            atom.SetNoImplicit(False)
+        else:
+            rw_mol.RemoveAtom(idx)
+
+    mol = rw_mol.GetMol()
+    Chem.SanitizeMol(mol)
+    return Chem.RemoveHs(mol)
+
+
+def get_candidate_sites(mol: Chem.Mol) -> list[dict]:
+    """
+    Find carbon atoms bearing at least one H.
+    Coordinates are obtained from a temporary explicit-H embedded copy.
+    """
+    work_mol = Chem.Mol(mol)
+    work_mol = Chem.AddHs(work_mol)
+
+    params = AllChem.ETKDGv3()
+    params.randomSeed = 42
+    params.useRandomCoords = True
+
+    status = AllChem.EmbedMolecule(work_mol, params)
+
+    if status != 0:
+        AllChem.Compute2DCoords(work_mol)
+
+    conf = work_mol.GetConformer()
+    candidates = []
+
+    for atom in work_mol.GetAtoms():
+        if atom.GetSymbol() != "C":
+            continue
+
+        has_h = any(nei.GetSymbol() == "H" for nei in atom.GetNeighbors())
+        if not has_h:
+            continue
+
+        idx = atom.GetIdx()
+        pos = conf.GetAtomPosition(idx)
+
+        candidates.append({
+            "idx": idx,
+            "coords": np.array([pos.x, pos.y, pos.z], dtype=float),
+        })
+
+    return candidates
+
+
+def placement_score(coords: list[np.ndarray]) -> float:
+    """
+    Score a set of candidate connector positions.
+    Larger mean pairwise distance = better separated connectors.
+    """
+    if len(coords) < 2:
+        return 0.0
+
+    dists = [
+        np.linalg.norm(coords[i] - coords[j])
+        for i in range(len(coords))
+        for j in range(i + 1, len(coords))
+    ]
+
+    return float(np.mean(dists))
+
+
+def select_best_sites(candidates: list[dict], num_connections: int) -> list[int]:
+    """
+    Select the combination of candidate sites with maximal mean separation.
+    """
+    if len(candidates) < num_connections:
+        raise ValueError(
+            f"Need {num_connections} candidate sites, found {len(candidates)}"
+        )
+
+    best_score = -np.inf
+    best_combo = None
+
+    for combo in combinations(candidates, num_connections):
+        coords = [c["coords"] for c in combo]
+        score = placement_score(coords)
+
+        if score > best_score:
+            best_score = score
+            best_combo = combo
+
+    return [c["idx"] for c in best_combo]
+
+
+def place_lr_atoms(mol: Chem.Mol, selected_indices: list[int]) -> str:
+    """
+    Attach connector placeholders to selected carbon atoms.
+
+    Important:
+    RDKit operations use dummy atoms (*) internally.
+    The output SMILES is converted from * to [Lr] only at the string level.
+    This avoids sanitizing chemically weird Lr-containing molecules.
+    """
+    work_mol = Chem.Mol(mol)
+    work_mol = Chem.AddHs(work_mol)
+
+    rw_mol = Chem.RWMol(work_mol)
+
+    # Remove one explicit H from each selected carbon.
+    h_to_remove = []
+
+    for idx in selected_indices:
+        atom = rw_mol.GetAtomWithIdx(idx)
+
+        if atom.GetSymbol() != "C":
+            raise ValueError(f"Selected atom {idx} is not carbon")
+
+        h_neighbors = [
+            nei.GetIdx()
+            for nei in atom.GetNeighbors()
+            if nei.GetSymbol() == "H"
+        ]
+
+        if not h_neighbors:
+            raise ValueError(f"Selected carbon {idx} has no removable H")
+
+        h_to_remove.append(h_neighbors[0])
+
+    for h_idx in sorted(h_to_remove, reverse=True):
+        rw_mol.RemoveAtom(h_idx)
+
+    # Add dummy connector atoms.
+    for idx in selected_indices:
+        dummy = Chem.Atom(0)  # "*"
+        dummy.SetNoImplicit(True)
+
+        new_idx = rw_mol.AddAtom(dummy)
+        rw_mol.AddBond(idx, new_idx, Chem.BondType.SINGLE)
+
+    out_mol = rw_mol.GetMol()
+    Chem.SanitizeMol(out_mol)
+
+    # Remove explicit Hs from final molecule.
+    out_mol = Chem.RemoveHs(out_mol)
+
+    smi = Chem.MolToSmiles(out_mol, canonical=True)
+
+    # Convert dummy placeholders to [Lr] only after RDKit sanitization.
+    smi = smi.replace("*", "[Lr]")
+
+    return smi
+
+
+def optimize_lr_placement(smi: str, num_connections: int = 4) -> str:
+    """
+    Full pipeline:
+    1. remove/replace existing [Lr]
+    2. find candidate C-H sites
+    3. select maximally separated sites
+    4. attach [Lr] placeholders
+    """
+    mol = prepare_molecule(smi)
+
+    candidates = get_candidate_sites(mol)
+
+    if len(candidates) < num_connections:
+        raise ValueError(
+            f"Not enough candidate sites: requested {num_connections}, "
+            f"found {len(candidates)}"
+        )
+
+    selected = select_best_sites(candidates, num_connections)
+
+    return place_lr_atoms(mol, selected)
+
+"""
 def prepare_molecule(smi):
     '''To optimise the placement of [Lr] connectors, we need to prepare the molecule.'''
     mol = Chem.MolFromSmiles(smi)
@@ -297,7 +492,7 @@ def optimize_lr_placement(smi, num_connections = 4):
     selected = select_best_sites(candidates, num_connections)
     mol_with_lr = place_lr_atoms(mol, selected)
     return Chem.MolToSmiles(mol_with_lr)
-
+"""
 
 # --------------------------------------------------
 # For inference, we use configuration files saved at FIXED paths.
@@ -306,9 +501,8 @@ def optimize_lr_placement(smi, num_connections = 4):
 # --------------------------------------------------
 
 # --- Load inference configurations ---
-def load_config():
+def load_config(config_path: str | Path = REPO_ROOT / 'designed/linker/inference_config.txt'):
     '''Load inference configurations from a fixed (saved) file'''
-    config_path = '../../designed/linker/inference_config.txt'
     config = {}
     with open(config_path, 'r') as f:
         for line in f:
@@ -344,7 +538,7 @@ def auto_configs(config, dataset):
     return config
 
 
-if __name__ == "__main__":
+def main(argv = None):
     display_banner()
     parser = argparse.ArgumentParser(description='Inference.')
     parser.add_argument('--mode', type = str, choices=['neighborhood', 'connectors'], default = 'neighborhood', help='Mode: Design or connector optimisation')
@@ -352,15 +546,20 @@ if __name__ == "__main__":
     parser.add_argument('--threshold', type = float, default = 1.0, help = 'Threshold multiplier for selecting better molecules than the seed (default: 1.0).')
     parser.add_argument('--filters', type = bool, default = True, help = 'Apply hard chemistry filters post-generation (default: True)')
     parser.add_argument('--num_connections', type = int, default = 4, help = 'Number of [Lr] connections to place in the scaffold (default: 4).')
-    args = parser.parse_args()
+    parser.add_argument('--mparams', type = str, default = str(REPO_ROOT / 'data/processed/tokenized_dataset.pkl'), help = 'Path to the model parameters file')
+    parser.add_argument('--input', type = str, default = str(REPO_ROOT / 'designed/linker/run/input.txt'), help = 'Path to input file')
+    parser.add_argument('--output', type = str, default = str(REPO_ROOT / 'designed/linker/run/output.txt'), help = 'Path to output file')
+    parser.add_argument('--config', type = str, default = str(REPO_ROOT / 'designed/linker/inference_config.txt'), help = 'Path to inference_config.txt')
+    parser.add_argument('--vae-ckpt', type = str, default = str(REPO_ROOT / 'artifacts/ckpt/vae/no_prop_vae_epoch_120.pt'), help = 'Path to VAE checkpoint')
+    args = parser.parse_args(argv)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # -------------
     # We used fixed paths for the model for ease of use, do not change unless you know where it is.
     # -------------
 
-    ckpt_path = '../../artifacts/ckpt/vae/no_prop_vae_epoch_120.pt'
-    mparams = '../../data/processed/tokenized_dataset.pkl'
+    ckpt_path = args.vae_ckpt
+    mparams = args.mparams
     with open(mparams, 'rb') as f: dataset = pickle.load(f)
     tok2id = dataset['tok2id']
     id2tok = dataset['id2tok']
@@ -371,7 +570,7 @@ if __name__ == "__main__":
     padding_index = dataset['padding_index']
     unk_index = dataset['unk_index']
     # ---- Inference Config ----
-    inference_config = load_config()
+    inference_config = load_config(args.config)
     inference_config = auto_configs(inference_config, dataset)
     # ---- Model initialization ----
     model = VAEModel(
@@ -407,9 +606,9 @@ if __name__ == "__main__":
     # ---- Inference modes ----
     if args.mode == 'neighborhood':
         # ----- Load and configure the input seed -----
-        run_dir = '../../designed/linker/run/'
-        input = run_dir + 'input.txt'
-        output = run_dir + 'output.txt'
+        input = args.input
+        output = args.output
+        os.makedirs(os.path.dirname(os.path.abspath(output)), exist_ok = True)
         assert os.path.isfile(input), f"Input file {input} does not exist. Please provide a valid input file."
         if input.endswith('.txt'): 
             with open(input, 'r') as f: input = f.read().strip()
@@ -466,9 +665,9 @@ if __name__ == "__main__":
     if args.mode == 'connectors':
         # ----- Load and configure the input seed -----
         input_smiles = []
-        run_dir = '../../designed/run/'
-        input = run_dir + 'input.txt'
-        output = run_dir + 'output.txt'
+        input = args.input
+        output = args.output
+        os.makedirs(os.path.dirname(os.path.abspath(output)), exist_ok = True)
         assert os.path.isfile(input), f"Input file {input} does not exist. Please provide a valid input file."
         with open(input, 'r') as f:
             lines = f.readlines()
@@ -489,4 +688,5 @@ if __name__ == "__main__":
                 f.write(f"{linker}\n")
         logger.info(f"Generated {len(linkers)} linkers. Results saved to {output}.")
 
-
+if __name__ == "__main__":
+    main()

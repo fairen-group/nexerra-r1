@@ -6,12 +6,12 @@
 # /_/ |_/\___/_/|_|\___/_/  /_/   \__,_/  
 #
 #  Seeded inference on the flow model, additional hard-chemistry filters can be applied.
-#   - read seed linker SMILES from ../../designed/linker/run/input.txt
-#   - write filtered outputs to ../../designed/linker/run/output.txt
-#   - write all generated outputs to ../../designed/linker/run/output_all.txt
+#   - read seed linker SMILES from designed/linker/run/input.txt
+#   - write filtered outputs to designed/linker/run/output.txt
+#   - write all generated outputs to designed/linker/run/output_all.txt
 #  Example usage:
 #   python FlowDesign.py --alpha 0.9 --num-samples 1000 --batch-size 128 \
-#   --reward gas --threshold 0.8 --filters True
+#   --reward gas --threshold 0.8 --filters
 #  Author: Dhruv Menon (dm958[at]cam[dot]ac[dot]uk)
 #
 #  MIT License. See LICENSE in the repo root.
@@ -23,13 +23,15 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 import torch
+torch.set_num_threads(1)
 import argparse
 import pickle
 import math
 import random; random.seed(42)
 import numpy as np
-if not hasattr(np, 'bool'): np.bool = np.bool_
+if 'bool' not in np.__dict__: np.bool = np.bool_
 from itertools import combinations
+from pathlib import Path
 from tqdm import tqdm
 from typing import List, Dict, Union, Tuple
 
@@ -47,7 +49,7 @@ import torch.nn.functional as F
 # --- Local imports ---
 from nexerra.model.HTVAE import VAEModel
 from nexerra.utils.tokenizer import Tokenizer
-from nexerra.inference.Reward import RewardFunction
+from nexerra.inference.Reward import RewardFunction, scscore_weight_path
 from nexerra.inference.Design import prepare_molecule, get_candidate_sites, placement_score, select_best_sites, place_lr_atoms, optimize_lr_placement
 from nexerra.cfm.eval_utils import make_vfield, rk45_integrator
 
@@ -66,6 +68,8 @@ from rdkit.Chem.Crippen import MolLogP
 
 import pyfiglet
 def display_banner(): banner = pyfiglet.figlet_format("Nexerra", font="slant"); print(banner)
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 # --- Model setup: v_theta(t, z, c) ---
 # -----------------------------------------------------------
@@ -353,7 +357,7 @@ def fg_filter(smiles: List[str], azide: bool = True, diazo: bool = True, nitroso
 def scscore_filter(smiles: List[str], threshold: float = 4.5) -> List[str]:
     '''reject molecules with scscore > threshold'''
     scmodel = SCScorer()
-    scmodel.restore(os.path.join('../utils','scscore', 'models', 'full_reaxys_model_2048bool', 'model.ckpt-10654.as_numpy.json.gz'), FP_rad = 2, FP_len = 2048)
+    scmodel.restore(scscore_weight_path(), FP_rad = 2, FP_len = 2048)
     filtered = []
     for smi in smiles:
         clean_smi = smi.replace("[Lr]", "*")
@@ -384,7 +388,7 @@ def reward_filter(rf: RewardFunction, toggle: int, smiles: List[str], threshold:
 # All user-defined parameters go to the inference_config.txt file
 # -----------------------------------------------------------    
 
-def load_config(config_path: str = '../../designed/linker/inference_config.txt'):
+def load_config(config_path: str | Path = REPO_ROOT / 'designed/linker/inference_config.txt'):
     config = {}
     if os.path.isfile(config_path):
         with open(config_path, 'r') as f:
@@ -414,7 +418,7 @@ def auto_configs(config, dataset):
         config['max_len'] = dataset['max_len']
     return config
 
-if __name__ == "__main__":
+def main(argv = None):
     display_banner()
     parser = argparse.ArgumentParser(description = 'Flow Inference')
     parser.add_argument('--alpha', type = float, default = 0.9, help = 'Alpha value for mixing seed latent with noise (default: 0.9)')
@@ -427,13 +431,16 @@ if __name__ == "__main__":
     # DONT NEED TO CHANGE UNLESS YOU CHANGE RELATIVE PATHS
     # -------------------------- 
     
-    parser.add_argument('--config', type = str, default = '../../designed/linker/inference_config.txt', help = 'Path to inference_config.txt')
-    parser.add_argument('--vae-ckpt', type = str, default = '../../artifacts/ckpt/vae/no_prop_vae_epoch_120.pt', help = 'Path to VAE checkpoint')
-    parser.add_argument('--flow-ckpt', type = str, default = '../../artifacts/ckpt/flow/otcfm_step_180000.pt', help = 'Path to flow checkpoint')
-    parser.add_argument('--latent-bank', type = str, default = '../../artifacts/latent_banks/latent_bank_len.pt', help = 'Path to latent bank file')
+    parser.add_argument('--mparams', type = str, default = str(REPO_ROOT / 'data/processed/tokenized_dataset.pkl'), help = 'Path to the model parameters file')
+    parser.add_argument('--input', type = str, default = str(REPO_ROOT / 'designed/linker/run/input.txt'), help = 'Path to input file')
+    parser.add_argument('--output', type = str, default = str(REPO_ROOT / 'designed/linker/run/output.txt'), help = 'Path to the output file')
+    parser.add_argument('--config', type = str, default = str(REPO_ROOT / 'designed/linker/inference_config.txt'), help = 'Path to inference_config.txt')
+    parser.add_argument('--vae-ckpt', type = str, default = str(REPO_ROOT / 'artifacts/ckpt/vae/no_prop_vae_epoch_120.pt'), help = 'Path to VAE checkpoint')
+    parser.add_argument('--flow-ckpt', type = str, default = str(REPO_ROOT / 'artifacts/ckpt/flow/otcfm_step_180000_len.pt'), help = 'Path to flow checkpoint')
+    parser.add_argument('--latent-bank', type = str, default = str(REPO_ROOT / 'artifacts/latent_banks/latent_bank_len.pt'), help = 'Path to latent bank file')
     parser.add_argument('--threshold', type = float, default = 0.5, help = 'Property filter threshold (default: 0.5)')
     parser.add_argument('--filters', action = 'store_true', help = 'Apply chemistry filters to generated molecules')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     # -----------------------------------------------------------
     # DO NOT CHANGE THIS BLOCK (unless you know what you're doing)
@@ -444,7 +451,7 @@ if __name__ == "__main__":
     # --- Setup the VAE and Tokenizer first ---
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     ckpt_path = args.vae_ckpt
-    mparams = '../../data/processed/tokenized_dataset.pkl'
+    mparams = args.mparams
     with open(mparams, 'rb') as f: dataset = pickle.load(f)
     tok2id = dataset['tok2id']
     id2tok = dataset['id2tok']
@@ -534,16 +541,15 @@ if __name__ == "__main__":
                           z_mean = z_mean,
                           z_std = z_std,
                           standardize_latents = standardize_latents)
-    
-    run_dir = '../../designed/linker/run/'
-    input_path = run_dir + 'input.txt'
-    output_path = run_dir + 'output.txt'
+    input_path = args.input
+    output_path = args.output
+    output_dir = os.path.dirname(os.path.abspath(output_path))
     output_path_all = output_path.replace('.txt', '_all.txt')
     assert os.path.isfile(input_path), f"Input file {input_path} does not exist. Please provide a valid input file."
     with open(input_path, 'r') as f:
         seed_smiles = f.read().strip()
     print(f"Input SMILES: {seed_smiles}")
-    os.makedirs(run_dir, exist_ok = True)
+    os.makedirs(output_dir, exist_ok = True)
     # --- Generate new molecules ---
     generated = designer.generate_from_seed(seed_smiles = seed_smiles,
                                             alpha = args.alpha,     
@@ -591,4 +597,7 @@ if __name__ == "__main__":
         for smi in filtered_smiles: f.write(smi + '\n')
     logger.info("Generated SMILES saved to %s", output_path)
     logger.info(f"Stored in decreasing order of reward score.")
+
+if __name__ == "__main__":
+    main()
 # -----------------------------------------------------------------
