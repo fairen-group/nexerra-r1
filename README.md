@@ -446,7 +446,7 @@ Additional notes:
 - If `uv pip install -e .` fails on compiled chemistry dependencies, use the Conda fallback in the setup section.
 - The Open Babel-based helper under `nexerra/build/addH.py` can be installed with `uv pip install -e ".[build]"`, but Conda is usually more reliable for Open Babel.
 - MOF construction utilities under `nexerra/build/` still expect an external `tobacco3.0` package. Alternatively, the system can be made compatible with PoreMake. 
-- The bio/reward subproject under `nexerra/inference/bio/` has its own dependency definition in `nexerra/inference/bio/pyproject.toml`.
+- Prototype bio/reward and GCMC workflows are maintained separately in `nexerra-experiments`.
 - The SCScore code under `nexerra/utils/scscore/` includes some legacy utilities, but normal Nexerra inference does not require the full legacy SCScore training stack. If you use this part, please cite the parent publication as,
 
 ```bib
