@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/cli.png" alt="nexerra-flow-design terminal session" width="720">
+  <img src="assets/cli.gif" alt="nexerra-flow-design terminal session" width="720">
 </p>
 
 <p align="center">

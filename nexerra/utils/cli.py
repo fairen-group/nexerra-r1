@@ -296,6 +296,7 @@ class NexerraUI:
 def _quiet_warnings():
     for category in (FutureWarning, DeprecationWarning): warnings.filterwarnings("ignore", category = category)
     warnings.filterwarnings("ignore", message = ".*nested tensors.*")
+    warnings.filterwarnings("ignore", message = ".*to-Python converter.*")
 
 
 def flow_design(argv = None):
@@ -313,7 +314,9 @@ def flow_design(argv = None):
     console = Console(file = sys.stdout, highlight = False)
     console.print(logo())
     if "-h" in argv or "--help" in argv:
-        from nexerra.inference import FlowDesign as fd
+        _quiet_warnings(); warnings.filterwarnings("ignore", category = RuntimeWarning)
+        logging.getLogger().handlers[:] = [logging.NullHandler()]
+        with contextlib.redirect_stdout(io.StringIO()): from nexerra.inference import FlowDesign as fd
         fd.display_banner = lambda: None
         return fd.main(argv)
 
