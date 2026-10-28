@@ -34,3 +34,6 @@ nexerra/inference/bio/data/interim/
 nexerra/utils/scscore/models/example_model/
 nexerra/utils/scscore/models/full_reaxys_model_1024bool/
 nexerra/utils/scscore/models/full_reaxys_model_1024uint8/
+
+# Python packaging
+*.egg-info/
