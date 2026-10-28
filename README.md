@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  <img src="assets/cli.png" alt="nexerra-flow-design terminal session" width="720">
+</p>
+
+<p align="center">
   <a href="LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
   <a href="pyproject.toml"><img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+"></a>
   <a href="https://doi.org/10.5281/zenodo.22284384"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.22284384.svg" alt="Zenodo DOI"></a>
@@ -164,6 +168,8 @@ After installation, run flow-guided inference with:
 ```bash
 nexerra-flow-design --alpha 0.9 --num-samples 1000 --batch-size 128 --reward gas --threshold 0.5 --filters
 ```
+
+Add `--plain` for the original unstyled log output, or `--export-svg <path>` to save a snapshot of the session.
 
 By default, FlowDesign reads one seed SMILES from `designed/linker/run/input.txt`; scaffold-constrained design uses `designed/linker/run/input_scaf.txt`.
 

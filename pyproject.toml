@@ -15,6 +15,7 @@ dependencies = [
     "pyfiglet>=1.0,<2.0",
     "python-dateutil>=2.9,<3.0",
     "rdkit>=2024.3,<2025.0",
+    "rich>=13.7,<15.0",
     "selfies>=2.2,<3.0",
     "torch>=2.5,<2.6",
     "torchdiffeq>=0.2.5,<0.3",
@@ -62,5 +63,5 @@ include = ["nexerra*"]
 ]
 
 [project.scripts]
-nexerra-flow-design = "nexerra.inference.FlowDesign:main"
+nexerra-flow-design = "nexerra.utils.cli:flow_design"
 nexerra-download-assets = "setup_assets:main"
